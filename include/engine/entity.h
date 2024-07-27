@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include <vector>
+#include <memory>
 
 #include "engine/types.h"
 
@@ -14,9 +15,10 @@ namespace GhostGame
         Entity();
 
         // Render the model
-        void render() const;
+        void draw() const;
 
     private:
+        std::unique_ptr<Model> _model;
     };
 }
 

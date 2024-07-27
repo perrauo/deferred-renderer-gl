@@ -2,15 +2,15 @@
 
 namespace GhostGame
 {    
-    Engine::Engine() : isRunning(false) {}
+    Engine::Engine() : _isRunning(false) {}
 
     void Engine::Start() {
-        isRunning = true;
-        while (isRunning) {
+        _isRunning = true;
+        while (_isRunning) {
             // Game loop
             ProcessInput();
             Update();
-            renderer.Render();
+            _renderer.Render();
         }
     }
 
@@ -23,6 +23,6 @@ namespace GhostGame
     }
 
     void Engine::Stop() {
-        isRunning = false;
+        _isRunning = false;
     }
 }

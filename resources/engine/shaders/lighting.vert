@@ -1,0 +1,1 @@
+// This shader usually just passes through the screen space coordinates of a full screen quad.

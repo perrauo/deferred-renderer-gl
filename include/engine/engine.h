@@ -8,8 +8,8 @@ namespace GhostGame
 {
     class GHOSTGAME_ENGINE_API  Engine {
     private:
-        Renderer renderer;
-        bool isRunning;
+        Renderer _renderer;
+        bool _isRunning;
 
     public:
         Engine();

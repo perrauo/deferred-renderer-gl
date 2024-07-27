@@ -3,6 +3,8 @@
 #include <vector>
 #include <GL/glew.h>
 
+
+
 namespace GhostGame
 {
     Model::Model(const std::vector<GLfloat>& vertices, const std::vector<GLuint>& indices)
@@ -10,7 +12,7 @@ namespace GhostGame
         initModel();
     }
 
-    void Model::render() const {
+    void Model::draw() const {
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
