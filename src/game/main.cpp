@@ -44,11 +44,8 @@ int main()
 
     // Create an instance of the Engine class
     Engine engine;
-
     std::unique_ptr<Game> game = std::make_unique<Game>();
-
-    // Start the game loop
-    engine.Start(game);
+    engine.start(std::move(game));
 
     glfwTerminate();
     return 0;

@@ -26,3 +26,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE include)
 
 # Create a source group for sponza resources
 source_group("Resources" FILES ${SPONZA_FILES} ${SHADER_FILES})
+
+# Copy sponza directory to build directory
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/resources/game/sponza $<TARGET_FILE_DIR:${PROJECT_NAME}>/sponza)

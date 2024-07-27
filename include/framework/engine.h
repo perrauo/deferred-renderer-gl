@@ -19,16 +19,20 @@ namespace GhostGame::Framework
 
         std::vector<std::unique_ptr<Entity>> _entities;
 
+        std::vector<std::unique_ptr<Entity>> _entities;
+
     public:
         Engine();
 
-        void Start(std::unique_ptr<IGame>&& game);
+        void start(std::unique_ptr<IGame>&& game);
 
-        void ProcessInput();
+        void processInput();
 
-        void Update();
+        void update();
 
-        void Stop();
+        void stop();
+
+        void add(std::unique_ptr<Entity>&& entity);
     };
 }
 

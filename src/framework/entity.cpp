@@ -2,7 +2,8 @@
 
 namespace GhostGame::Framework
 {
-    Entity::Entity()
+    Entity::Entity(std::unique_ptr<Model>&& model)
+    : model(std::move(model))
     {
     }
 

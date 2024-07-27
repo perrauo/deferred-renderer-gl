@@ -6,7 +6,7 @@ namespace GhostGame
     private:
 
     public:
-        void Render()
+        void render()
         {
         }
     };

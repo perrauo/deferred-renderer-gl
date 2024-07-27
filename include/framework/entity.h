@@ -12,12 +12,13 @@ namespace GhostGame::Framework
     class Entity {
     public:
         // Constructor
-        Entity();
+        Entity(std::unique_ptr<Model>&& model);
 
         // Render the model
         void draw() const;
+        
+        Transform transform;
 
-    private:
-        std::unique_ptr<Model> _model;
+        std::unique_ptr<Model> model;
     };
 }

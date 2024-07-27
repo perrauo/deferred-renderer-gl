@@ -6,11 +6,11 @@ namespace GhostGame
 {
     class Game : public Framework::IGame
     {
-        void Start(Framework::Engine& engine) override;
+        void start(Framework::Engine& engine) override;
 
-        void Update(Framework::Engine& engine) override;
+        void update(Framework::Engine& engine) override;
 
-        void Render(Framework::Engine& engine) override;
+        void render(Framework::Engine& engine) override;
 
         ~Game() override;
     };
