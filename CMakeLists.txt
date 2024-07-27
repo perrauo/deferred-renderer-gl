@@ -19,7 +19,8 @@ include_directories(${Boost_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_
 
 # specify the executable
 file(GLOB SOURCES "src/*.cpp")
-add_executable(GhostGameRenderer ${SOURCES})
+file(GLOB SHADERS "shaders/*.vert" "shaders/*.frag" "shaders/*.geom")
+add_executable(GhostGameRenderer ${SOURCES} ${SHADERS})
 
 # link libraries
 target_link_libraries(GhostGameRenderer ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES})
