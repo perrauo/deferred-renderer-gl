@@ -48,7 +48,12 @@ namespace GhostGame::Framework
 
     class GHOSTGAME_FRAMEWORK_API ModelRenderer : public Component
     {
+    public:
+        std::unique_ptr<Model> model;
 
-
+        ModelRenderer(std::unique_ptr< Model>&& model)
+        : model(std::move(model))
+        {
+        }
     };
 }

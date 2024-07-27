@@ -6,6 +6,8 @@ class Avatar;
 
 namespace GhostGame
 {
+    using EntityId = int;
+
     class Game : public Framework::IGame
     {
     public:
@@ -17,7 +19,7 @@ namespace GhostGame
 
         ~Game() override;
 
-        std::shared_ptr<Avatar> avatar;
+        EntityId playerId = -1;
     };
 }
 

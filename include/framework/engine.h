@@ -17,7 +17,7 @@ namespace GhostGame::Framework
 
         std::unique_ptr<IGame> _game;
 
-        std::unordered_map<int, Entity> _entities;
+        std::unordered_map<EntityId, Entity> _entities;
 
         float _lastTime = 0;
 
@@ -34,7 +34,7 @@ namespace GhostGame::Framework
 
         void stop();
 
-        EntityId spawnEntity();
+        std::pair<EntityId, Entity&> spawnEntity();
 
         void despawnEntity(EntityId id);
 

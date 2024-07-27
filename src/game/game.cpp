@@ -6,6 +6,10 @@
 #include "framework/entity.h"
 
 #include <filesystem>
+#include <iostream>
+#include <fstream>
+#include <iterator>
+#include <boost/json.hpp>
 
 namespace GhostGame
 {
@@ -13,14 +17,21 @@ namespace GhostGame
     {
         using namespace Framework;
 
-        for (const auto& entry : std::filesystem::directory_iterator("./sponza"))
+        std::ifstream file("./game_config.json");
+        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        auto config = boost::json::parse(content);
+        auto someValue = config.at("enemySpawnFrequency").as_string();
+
+        for (const auto& entry : std::filesystem::directory_iterator("./environment"))
         {
             auto model = std::make_unique<Model>(entry.path().string());
-            EntityId id = engine.spawnEntity();
-
+            auto [id, entity] = engine.spawnEntity();
+            entity.components.push_back(std::make_unique< ModelRenderer>(std::move(model)));
         }
 
-        engine.add(std::make_unique<Avatar>());
+        auto [id, player] = engine.spawnEntity();
+        playerId = id;
+        player.components.push_back(std::make_unique<PlayerBehavior>());
     }
 
     void Game::update(Framework::Engine& engine, float deltaTime)
@@ -32,8 +43,6 @@ namespace GhostGame
         auto ghost = std::make_unique<Ghost>();
         ghost->transform.position = player->transform.position; // Assuming Avatar has a getPosition method
         engine.add(std::move(ghost));
-
-
     }
 
     void Game::render(Framework::Engine& engine)

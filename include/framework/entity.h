@@ -23,7 +23,7 @@ namespace GhostGame::Framework
 
         bool markedForDeletion = false;
 
-        Entity(std::unique_ptr<Model>&& model);
+        Entity();
        
         void draw() const;
         

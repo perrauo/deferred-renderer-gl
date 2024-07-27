@@ -49,10 +49,11 @@ namespace GhostGame::Framework
         _entities.erase(id);
     }
 
-    EntityId Engine::spawnEntity()
+    std::pair<EntityId, Entity&> Engine::spawnEntity()
     {
-        _entities.emplace(_nextEntityId);
-        return _nextEntityId++;
+        auto result = _entities.emplace(_nextEntityId, Entity());
+        ++_nextEntityId;
+        return { result.first->first, result.first->second };
     }
 
     Entity& Engine::getEntity(EntityId id)
