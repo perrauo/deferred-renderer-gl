@@ -1,8 +1,12 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 
+#include "engine/engine.h"
+
 int main()
 {
+    using namespace GhostGame;
+
     // Initialize the library
     if (!glfwInit())
     {
@@ -34,6 +38,12 @@ int main()
         // Poll for and process events
         glfwPollEvents();
     }
+
+    // Create an instance of the Engine class
+    GhostGame::Engine engine;
+
+    // Start the game loop
+    engine.Start();
 
     glfwTerminate();
     return 0;

@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.10)
-project(GhostGameRenderer)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -18,12 +17,8 @@ find_package(GLUT REQUIRED) # Add this line for FreeGlut
 find_package(GLFW REQUIRED)
 
 # include directories
-include_directories(${Boost_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} include)
+include_directories(${Boost_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} glm include)
 
-# specify the executable
-file(GLOB SOURCES "src/*.cpp")
-file(GLOB SHADERS "shaders/*.vert" "shaders/*.frag" "shaders/*.geom")
-add_executable(GhostGameRenderer ${SOURCES} ${SHADERS})
-
-# link libraries
-target_link_libraries(GhostGameRenderer ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${GLFW_LIBRARIES})
+# Add subdirectories
+add_subdirectory(src/engine)
+add_subdirectory(src/game)
