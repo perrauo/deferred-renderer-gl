@@ -1,11 +1,14 @@
 #include <iostream>
+#include <GL/glew.h> // Glew before gl to prevent warning
 #include <GLFW/glfw3.h>
 
-#include "engine/engine.h"
+#include "framework/engine.h"
+#include "game/game.h"
 
 int main()
 {
     using namespace GhostGame;
+    using namespace GhostGame::Framework;
 
     // Initialize the library
     if (!glfwInit())
@@ -40,10 +43,12 @@ int main()
     }
 
     // Create an instance of the Engine class
-    GhostGame::Engine engine;
+    Engine engine;
+
+    std::unique_ptr<Game> game = std::make_unique<Game>();
 
     // Start the game loop
-    engine.Start();
+    engine.Start(game);
 
     glfwTerminate();
     return 0;
