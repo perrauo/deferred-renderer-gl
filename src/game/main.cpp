@@ -29,8 +29,8 @@ int main()
     // Make the window's context current
     glfwMakeContextCurrent(window);
 
-    // Create an instance of the Engine class
-    Engine engine;
+    // Create an instance of the Engine class    
+    Engine engine(std::make_unique<Renderer>());
     std::unique_ptr<Game> game = std::make_unique<Game>();
     engine.start(std::move(game));
 

@@ -11,6 +11,5 @@ namespace GhostGame::Framework
         virtual void start(Engine& engine) = 0;
         virtual void update(Engine& engine, float deltaTime) = 0;
         virtual void render(Engine& engine) = 0;
-        virtual ~IGame() = default;
     };
 }

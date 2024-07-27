@@ -1,17 +1,18 @@
 #pragma once
 
-
+#include "framework/api.h"
 #include "framework/types.h"
-#include "framework/model.h"
 
 namespace GhostGame::Framework
 {
     class Engine;
 
-    class Component {
+    class GHOSTGAME_FRAMEWORK_API Component {
     public :
-        virtual void update(Engine& engine, float deltaTime) = 0;
 
+        Component() = default;
         virtual ~Component() = default;
+
+        virtual void update(Engine& engine, float deltaTime) = 0;
     };
 }

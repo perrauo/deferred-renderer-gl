@@ -11,10 +11,11 @@ namespace GhostGame
     class PlayerBehavior : public Framework::Component
     {
     public:
-        ~PlayerBehavior() override {
-        }
+        PlayerBehavior();
 
-        virtual void update(Framework::Engine& engine, float deltaTime) override;
+        ~PlayerBehavior() override;
+
+        void update(Framework::Engine& engine, float deltaTime) override;
     };
 
     // -------------------
@@ -25,9 +26,10 @@ namespace GhostGame
     {
     public:
 
-        ~EnemyBehavior() override {
-        }
+        EnemyBehavior();
 
-        virtual void update(Framework::Engine& engine, float deltaTime) override;
+        ~EnemyBehavior() override;
+
+        void update(Framework::Engine& engine, float deltaTime) override;
     };
 }

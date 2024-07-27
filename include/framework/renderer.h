@@ -1,13 +1,13 @@
 #pragma once
 
-namespace GhostGame
+#include "framework/api.h"
+
+namespace GhostGame::Framework
 {
-    class Renderer {
-    private:
+    class GHOSTGAME_FRAMEWORK_API Renderer {
+
 
     public:
-        void render()
-        {
-        }
+        void render();
     };
 }

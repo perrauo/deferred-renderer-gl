@@ -2,4 +2,8 @@
 
 namespace GhostGame::Framework
 {
+    void Renderer::render()
+    {
+    
+    }
 }

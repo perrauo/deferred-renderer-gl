@@ -3,6 +3,9 @@ project(Framework)
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 20)
 
+# Add a definition for GHOSTGAME_FRAMEWORK_EXPORTS when building this library
+add_definitions(-DGHOSTGAME_FRAMEWORK_EXPORTS)
+
 file(GLOB_RECURSE SHADER_FILES
     ${CMAKE_SOURCE_DIR}/resources/framework/*.vert
     ${CMAKE_SOURCE_DIR}/resources/framework/*.frag

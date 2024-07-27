@@ -2,7 +2,7 @@
 
 #include "framework/types.h"
 #include "framework/component.h"
-#include "framework/model.h"
+#include "framework/mesh.h"
 
 #include <GL/glew.h>
 #include <vector>
@@ -12,21 +12,23 @@ namespace GhostGame::Framework
 {
     using EntityId = int;
 
-    class Entity {
+    class GHOSTGAME_FRAMEWORK_API Entity {
     public:
         
         Transform transform;
-
-        std::unique_ptr<Model> model;
 
         std::vector<std::unique_ptr<Component>> components;
 
         bool markedForDeletion = false;
 
-        Entity();
+        Entity() = default;
+        ~Entity() = default;
+
+        Entity(const Entity&) = delete;
+        Entity& operator=(const Entity&) = delete;
        
-        void draw() const;
+        void draw(Engine& engine) const;
         
-        void update(float deltaTime);
+        void update(Engine& engine, float deltaTime);
     };
 }

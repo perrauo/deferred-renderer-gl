@@ -12,8 +12,8 @@ file(GLOB_RECURSE CONFIG_FILES
     ${CMAKE_SOURCE_DIR}/resources/game/*.json
 )
 
-# Add all files in the sponza directory
-file(GLOB_RECURSE SPONZA_FILES
+# Add all files in the environment directory
+file(GLOB_RECURSE ENVIRONMENT_FILES
     ${CMAKE_SOURCE_DIR}/resources/game/environment/*
 )
 
@@ -21,29 +21,31 @@ file(GLOB_RECURSE SPONZA_FILES
 file(GLOB SOURCES "*.cpp")
 
 # Add executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${SHADER_FILES} ${SPONZA_FILES} ${CONFIG_FILES})
+add_executable(${PROJECT_NAME} ${SOURCES} ${SHADER_FILES} ${ENVIRONMENT_FILES} ${CONFIG_FILES})
 
 # Link libraries
-target_link_libraries(${PROJECT_NAME} Framework)
+target_link_libraries(${PROJECT_NAME} Framework ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${GLFW_LIBRARIES} assimp)
 
-target_include_directories(${PROJECT_NAME} PRIVATE include)
+target_include_directories(${PROJECT_NAME} PRIVATE include ${CMAKE_CURRENT_SOURCE_DIR}/src/framework)
 
 # Create a source group for sponza resources
-source_group("Resources" FILES ${SPONZA_FILES} ${SHADER_FILES} ${CONFIG_FILES})
+source_group("Resources" FILES ${ENVIRONMENT_FILES} ${SHADER_FILES} ${CONFIG_FILES})
 
-# Copy sponza directory to build directory
+# Copy env directory to build directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/resources/game/sponza $<TARGET_FILE_DIR:${PROJECT_NAME}>/sponza)
+                   ${CMAKE_SOURCE_DIR}/resources/game/environment $<TARGET_FILE_DIR:${PROJECT_NAME}>/environment)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    ${CMAKE_SOURCE_DIR}/resources/game/entities $<TARGET_FILE_DIR:${PROJECT_NAME}>/entities)
 
 # Copy shader files to build directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/resources/game ${CMAKE_BINARY_DIR}/shaders
-                   FILES_MATCHING PATTERN "*.vert" PATTERN "*.frag")
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${SHADER_FILES} ${CMAKE_BINARY_DIR}/shaders)
 
 # Copy config files to build directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/resources/game ${CMAKE_BINARY_DIR}/config
-                   FILES_MATCHING PATTERN "*.json")
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CONFIG_FILES} ${CMAKE_BINARY_DIR}/config)

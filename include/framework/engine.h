@@ -1,5 +1,4 @@
-#ifndef GHOSTGAME_ENGINE_H
-#define GHOSTGAME_ENGINE_H
+#pragma once
 
 #include "framework/api.h"
 #include "framework/renderer.h"
@@ -8,23 +7,27 @@
 
 #include <memory>
 #include <unordered_map>
+#include <utility> // pair
+#include <functional> // reference_wrapper
 
 namespace GhostGame::Framework
 {
-    class GHOSTGAME_FRAMEWORK_API Engine {
-    private:
-        Renderer _renderer;
+    using EntityId = int;
 
+    class GHOSTGAME_FRAMEWORK_API Engine {
+    private:       
         std::unique_ptr<IGame> _game;
 
         std::unordered_map<EntityId, Entity> _entities;
+
+        std::unique_ptr<Renderer> _renderer;
 
         float _lastTime = 0;
 
         EntityId _nextEntityId = 0;
 
     public:
-        Engine();
+        Engine(std::unique_ptr<Renderer>&& renderer);        
 
         void start(std::unique_ptr<IGame>&& game);
 
@@ -41,6 +44,3 @@ namespace GhostGame::Framework
         Entity& getEntity(EntityId id);
     };
 }
-
-
-#endif

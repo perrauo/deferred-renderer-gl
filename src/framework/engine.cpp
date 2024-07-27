@@ -4,7 +4,10 @@
 
 namespace GhostGame::Framework
 {    
-    Engine::Engine() {}
+    Engine::Engine(std::unique_ptr<Renderer>&& renderer)
+    : _renderer(std::move(renderer))
+    {
+    }
 
     void Engine::start(std::unique_ptr<IGame>&& game) 
     {
@@ -26,7 +29,7 @@ namespace GhostGame::Framework
 
         std::vector<EntityId> entitiesToErase;
         for (auto& [id, entity] : _entities) {
-            entity.update(deltaTime);
+            entity.update(*this, deltaTime);
             if (entity.markedForDeletion) {
                 entitiesToErase.push_back(id);
             }
@@ -38,7 +41,7 @@ namespace GhostGame::Framework
 
         _game->update(*this, deltaTime);
 
-        _renderer.render();
+        _renderer->render();
     }
 
     void Engine::stop() {
@@ -51,19 +54,20 @@ namespace GhostGame::Framework
 
     std::pair<EntityId, Entity&> Engine::spawnEntity()
     {
-        auto result = _entities.emplace(_nextEntityId, Entity());
-        ++_nextEntityId;
-        return { result.first->first, result.first->second };
+        Entity& entity = _entities[_nextEntityId];
+        return { _nextEntityId++, entity };
     }
 
     Entity& Engine::getEntity(EntityId id)
     {
+        static Entity sInvalidEntity;
+
         auto it = _entities.find(id);
         if (it != _entities.end()) {
             return it->second;
         }
         else {
-            
+            return sInvalidEntity;
         }
     }
 }

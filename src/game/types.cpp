@@ -12,6 +12,10 @@ namespace GhostGame
     {
     }
 
+    PlayerBehavior::~PlayerBehavior()
+    {
+    }
+
     void PlayerBehavior::update(Framework::Engine& engine, float deltaTime)
     {    
     }
@@ -22,6 +26,10 @@ namespace GhostGame
 
 
     EnemyBehavior::EnemyBehavior()
+    {
+    }
+    
+    EnemyBehavior::~EnemyBehavior()
     {
     }
 

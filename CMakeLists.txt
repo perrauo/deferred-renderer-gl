@@ -14,7 +14,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/assimp/cmake-modules")
 
 # find packages
-find_package(Boost 1.85.0 COMPONENTS system REQUIRED)
+find_package(Boost 1.85.0 COMPONENTS system json REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED) # Add this line for GLEW
 find_package(GLUT REQUIRED) # Add this line for FreeGlut

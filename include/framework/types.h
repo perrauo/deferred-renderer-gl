@@ -1,5 +1,7 @@
 #pragma once
 
+#include "framework/api.h"
+
 #include <GL/glew.h>
 #include <vector>
 #include <string>
@@ -11,7 +13,7 @@
 
 namespace GhostGame::Framework
 {    
-    class Transform {
+    class GHOSTGAME_FRAMEWORK_API Transform {
     public:
         glm::vec3 position;
         glm::quat rotation;
