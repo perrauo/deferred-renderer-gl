@@ -26,4 +26,4 @@ file(GLOB SHADERS "shaders/*.vert" "shaders/*.frag" "shaders/*.geom")
 add_executable(GhostGameRenderer ${SOURCES} ${SHADERS})
 
 # link libraries
-target_link_libraries(GhostGameRenderer ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES})
+target_link_libraries(GhostGameRenderer ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${GLFW_LIBRARIES})
