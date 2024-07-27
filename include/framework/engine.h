@@ -7,19 +7,21 @@
 #include "framework/entity.h"
 
 #include <memory>
+#include <unordered_map>
 
 namespace GhostGame::Framework
 {
     class GHOSTGAME_FRAMEWORK_API Engine {
     private:
         Renderer _renderer;
-        bool _isRunning;
 
         std::unique_ptr<IGame> _game;
 
-        std::vector<std::unique_ptr<Entity>> _entities;
+        std::unordered_map<int, Entity> _entities;
 
-        std::vector<std::unique_ptr<Entity>> _entities;
+        float _lastTime = 0;
+
+        EntityId _nextEntityId = 0;
 
     public:
         Engine();
@@ -32,7 +34,11 @@ namespace GhostGame::Framework
 
         void stop();
 
-        void add(std::unique_ptr<Entity>&& entity);
+        EntityId spawnEntity();
+
+        void despawnEntity(EntityId id);
+
+        Entity& getEntity(EntityId id);
     };
 }
 

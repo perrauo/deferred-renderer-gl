@@ -1,4 +1,4 @@
-#include "game/ghost.h"
+#pragma once
 
 #include "framework/entity.h"
 

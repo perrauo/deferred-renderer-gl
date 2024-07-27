@@ -1,5 +1,8 @@
 #pragma once
 
+#include "framework/model.h"
+#include "framework/api.h"
+
 #include <GL/glew.h>
 #include <vector>
 #include <string>
@@ -15,7 +18,7 @@ struct aiMesh;
 
 namespace GhostGame::Framework
 {
-    class Model {
+    class GHOSTGAME_FRAMEWORK_API Model {
     public:
         // Constructor
         Model(const std::vector<GLfloat>& vertices, const std::vector<GLuint>& indices);
@@ -41,5 +44,11 @@ namespace GhostGame::Framework
 
         // Process a mesh in the scene
         void processMesh(aiMesh* mesh, const aiScene* scene);
+    };
+
+    class GHOSTGAME_FRAMEWORK_API ModelRenderer : public Component
+    {
+
+
     };
 }

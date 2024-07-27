@@ -29,9 +29,16 @@ int main()
     // Make the window's context current
     glfwMakeContextCurrent(window);
 
+    // Create an instance of the Engine class
+    Engine engine;
+    std::unique_ptr<Game> game = std::make_unique<Game>();
+    engine.start(std::move(game));
+
     // Loop until the user closes the window
     while (!glfwWindowShouldClose(window))
     {
+        engine.update();
+
         // Render here
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -41,11 +48,6 @@ int main()
         // Poll for and process events
         glfwPollEvents();
     }
-
-    // Create an instance of the Engine class
-    Engine engine;
-    std::unique_ptr<Game> game = std::make_unique<Game>();
-    engine.start(std::move(game));
 
     glfwTerminate();
     return 0;
