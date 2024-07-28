@@ -1,22 +1,43 @@
 #pragma once
 
 #include "framework/game.h"
+#include "framework/camera.h"
+#include "game/player.h"
 
 #include <memory>
-
+#include <unordered_map>
 
 namespace GhostGame
 {
     namespace Framework
     {
+        using EntityId = int;
         class Mesh;
+        class MeshRendererComponent;
     }
 
-    using EntityId = int;
+    class EnemyComponent;
+    class PlayerComponent;
 
     class Game : public Framework::IGame
     {
+
+    private:
+
+        Framework::EntityId _playerId = -1;
+
+        std::shared_ptr<Framework::Mesh> _enemyMesh;
+
+        float _enemySpawnFrequency = -1;
+
     public:
+        
+        // Pseudo ECS
+
+        PlayerComponent player;
+        Framework::CameraComponent camera;
+
+        // Enemies  
 
         Game() = default;
 
@@ -27,12 +48,6 @@ namespace GhostGame
         void update(Framework::Engine& engine, float deltaTime) override;
 
         void render(Framework::Engine& engine) override;
-
-        EntityId playerId = -1;
-
-        std::shared_ptr<Framework::Mesh> enemyModel;
-
-        float enemySpawnFrequency = -1;
     };
 }
 

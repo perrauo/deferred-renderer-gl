@@ -3,37 +3,12 @@
 #include "framework/entity.h"
 
 namespace GhostGame
-{
-    // -------------------
-    // PlayerBehavior
-    // -------------------
-
-    PlayerBehavior::PlayerBehavior()
-    {
-    }
-
-    PlayerBehavior::~PlayerBehavior()
-    {
-    }
-
-    void PlayerBehavior::update(Framework::Engine& engine, float deltaTime)
-    {    
-    }
-
+{   
     // -------------------
     // EnemyBehavior
     // -------------------
 
-
-    EnemyBehavior::EnemyBehavior()
-    {
-    }
-    
-    EnemyBehavior::~EnemyBehavior()
-    {
-    }
-
-    void EnemyBehavior::update(Framework::Engine& engine, float deltaTime)
+    void EnemyComponent::update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime)
     {
     }
 }

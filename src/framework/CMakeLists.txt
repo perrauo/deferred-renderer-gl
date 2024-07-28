@@ -18,29 +18,24 @@ source_group("Resources" FILES ${SHADER_FILES})
 add_library(${TARGET_NAME} SHARED ${SOURCES} ${SHADER_FILES})
 
 # Link libraries
-target_link_libraries(${TARGET_NAME} ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${GLFW_LIBRARIES} assimp)
+target_link_libraries(${TARGET_NAME} PUBLIC ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${GLFW_LIBRARIES} PRIVATE assimp assimp::assimp)
 
 # Include directories
 target_include_directories(${TARGET_NAME} PRIVATE ${assimp_INCLUDE_DIRS} include )
 
-# Set the output directory for the library to the bin folder at the root of the repository
 set_target_properties(${TARGET_NAME} PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
-function(copy_files TARGET)
-    foreach(FILE ${ARGN})
-        file(RELATIVE_PATH REL_PATH ${CMAKE_SOURCE_DIR} ${FILE})
-        get_filename_component(DIR ${REL_PATH} DIRECTORY)
-        add_custom_command(TARGET ${TARGET} POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${TARGET}>/${DIR}
-                           COMMAND ${CMAKE_COMMAND} -E copy
-                           ${FILE} $<TARGET_FILE_DIR:${TARGET}>/${DIR})
-    endforeach()
-endfunction()
+install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 
 # Copy files to build directory
 copy_files(${TARGET_NAME} ${ENV_FILES} ${SHADER_FILES})
+
+if(GLEW_FOUND)
+  message("GLEW Libraries: ${GLEW_LIBRARIES}")
+  file(COPY ${GLEW_LIBRARIES} DESTINATION ${CMAKE_BINARY_DIR}/bin)
+endif()

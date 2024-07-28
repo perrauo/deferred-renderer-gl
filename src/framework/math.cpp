@@ -1,9 +1,6 @@
-#include "framework/types.h"
+#include "framework/math.h"
 
 #include <vector>
-#include <GL/glew.h>
-
-
 
 namespace GhostGame::Framework
 {

@@ -1,5 +1,6 @@
 #include <iostream>
-#include <GL/glew.h> // Glew before gl to prevent warning
+#define GLEW_STATIC
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "framework/engine.h"
@@ -30,7 +31,13 @@ int main()
     glfwMakeContextCurrent(window);
 
     // Create an instance of the Engine class    
-    Engine engine(std::make_unique<Renderer>());
+
+    auto renderer = std::make_unique<Renderer>();
+    renderer->renderPasses.push_back(std::make_unique<RenderPass>("resources/framework/shaders/geometry.vert", "resources/framework/shaders/geometry.frag"));
+    renderer->renderPasses.push_back(std::make_unique < RenderPass>("resources/framework/shaders/lighting.vert", "resources/framework/shaders/lighting.frag"));
+    renderer->renderPasses.push_back(std::make_unique < RenderPass>("resources/framework/shaders/postprocess.vert", "resources/framework/shaders/postprocess.frag"));
+
+    Engine engine(std::move(renderer));
     std::unique_ptr<Game> game = std::make_unique<Game>();
     engine.start(std::move(game));
 

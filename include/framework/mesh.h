@@ -1,17 +1,18 @@
 #pragma once
 
 #include "framework/api.h"
-#include "framework/component.h"
+#include "framework/entity.h"
 
 #include <vector>
 #include <string>
 #include <memory>
 
-#include <GL/glew.h>
 #include "glm/gtc/quaternion.hpp"
 #include "glm/mat4x4.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
+
+#include <GL/glew.h>
 
 struct aiNode;
 struct aiScene;
@@ -19,8 +20,17 @@ struct aiMesh;
 
 namespace GhostGame::Framework
 {
+    class Shader;
+    class Engine;
+
     class GHOSTGAME_FRAMEWORK_API Mesh {
+
+        GLuint VAO = 0, VBO = 0, EBO = 0;
     public:
+        std::vector<GLfloat> vertices;
+        std::vector<GLuint> indices;
+
+
         // Constructor
         Mesh();
         Mesh(const std::vector<GLfloat>& vertices, const std::vector<GLuint>& indices);
@@ -33,33 +43,44 @@ namespace GhostGame::Framework
         // Load mesh from file
         void loadModel(const std::string& path);
 
-    private:
-        std::vector<GLfloat> vertices;
-        std::vector<GLuint> indices;
-
-        GLuint VAO, VBO, EBO;
-
         // Initialize the mesh
         void initModel();
-
-        // Process a node in the scene
-        void processNode(aiNode* node, const aiScene* scene);
-
-        // Process a mesh in the scene
-        void processMesh(aiMesh* mesh, const aiScene* scene);
     };
 
-    class GHOSTGAME_FRAMEWORK_API MeshRenderer : public Component
+    struct ModelLoadResult
+    {
+        std::unique_ptr<Mesh> mesh;
+
+        unsigned int materialIdx = -1;
+
+        std::string texturePath;
+    };
+
+    struct ModelLoadContext
+    {
+        std::unordered_map<int, ModelLoadResult> results;
+
+    };
+
+    struct ModelLoadNodeContext
+    {
+        std::unordered_map<int, ModelLoadResult> results;
+
+    };
+
+    void loadModel(const std::string& path, ModelLoadContext& loadContext);
+
+    void loadModelProcessNode(ModelLoadContext& loadContext, aiNode* node, const aiScene* scene);
+
+    void loadModelProcessMesh(ModelLoadContext& loadContext, aiNode* node, unsigned int meshId, aiMesh* mesh, const aiScene* scene);
+
+    class GHOSTGAME_FRAMEWORK_API MeshComponent : public Component
     {
     public:
         std::shared_ptr<Mesh> mesh;
 
-        MeshRenderer(const std::shared_ptr<Mesh>& mesh)
-        : mesh(mesh)
-        {
-        }
+        std::shared_ptr<Shader> shader;
 
-        virtual void update(Engine& engine, float deltaTime) {
-        }
+        virtual void update(Engine& engine, Entity& entity, float deltaTime);
     };
 }

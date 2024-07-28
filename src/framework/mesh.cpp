@@ -1,4 +1,6 @@
 #include "framework/mesh.h"
+#include "framework/entity.h"
+#include "framework/shader.h"
 
 #include <vector>
 #include <iostream>
@@ -7,9 +9,19 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "GL/glew.h"
+#include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 namespace GhostGame::Framework
 {
+    // -------------------
+    // Mesh
+    // -------------------
+
+
     Mesh::Mesh() {
     }
 
@@ -50,7 +62,9 @@ namespace GhostGame::Framework
         glBindVertexArray(0);
     }
 
-    void Mesh::loadModel(const std::string& path) {
+
+    void loadModel(const std::string& path, ModelLoadContext& loadContext)
+    {
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -59,31 +73,71 @@ namespace GhostGame::Framework
             return;
         }
 
-        processNode(scene->mRootNode, scene);
+        loadModelProcessNode(loadContext, scene->mRootNode, scene);
     }
 
-    void Mesh::processNode(aiNode* node, const aiScene* scene) {
+    void loadModelProcessNode(ModelLoadContext& loadContext, aiNode* node, const aiScene* scene)
+    {
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            processMesh(mesh, scene);
+            loadModelProcessMesh(loadContext, node, i, mesh, scene);
         }
 
         for (unsigned int i = 0; i < node->mNumChildren; i++) {
-            processNode(node->mChildren[i], scene);
+            loadModelProcessNode(loadContext, node->mChildren[i], scene);
         }
     }
 
-    void Mesh::processMesh(aiMesh* mesh, const aiScene* scene) {
+    void loadModelProcessMesh(ModelLoadContext& loadContext, aiNode* node, unsigned int meshId, aiMesh* mesh, const aiScene* scene)
+    {   
+        auto md = node->mMetaData;
+        //node->mTransformation
+        //loadContext.results.emplace(mesh.i)
+        auto& result = loadResults.emplace_back();
+        result.mesh = std::make_unique<Mesh>();
+        result.materialIdx = mesh->mMaterialIndex;
+
         for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-            vertices.push_back(mesh->mVertices[i].x);
-            vertices.push_back(mesh->mVertices[i].y);
-            vertices.push_back(mesh->mVertices[i].z);
+            result.mesh->vertices.push_back(mesh->mVertices[i].x);
+            result.mesh->vertices.push_back(mesh->mVertices[i].y);
+            result.mesh->vertices.push_back(mesh->mVertices[i].z);
         }
 
         for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
             aiFace face = mesh->mFaces[i];
             for (unsigned int j = 0; j < face.mNumIndices; j++)
-                indices.push_back(face.mIndices[j]);
+                result.mesh->indices.push_back(face.mIndices[j]);
         }
+    }
+
+
+
+    // -------------------
+    // MeshComponent
+    // -------------------
+
+    void MeshComponent::update(Engine& engine, Entity& entity, float deltaTime)
+    {
+        // Get the transformation matrix from the entity
+        glm::mat4 transform = entity.transform.getMatrix();
+
+        // Convert the transformation matrix to a format that OpenGL can use
+        GLfloat glTransform[16];
+        const float* transformData = glm::value_ptr(transform);
+        std::copy(transformData, transformData + 16, glTransform);
+
+        // Apply the transformation
+        glPushMatrix();
+        glMultMatrixf(glTransform);
+
+        if (shader) {
+            shader->use();
+        }
+
+        // Draw the mesh
+        mesh->draw();
+
+        // Restore the previous model view matrix
+        glPopMatrix();
     }
 }

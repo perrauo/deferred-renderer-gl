@@ -4,6 +4,7 @@
 #include "framework/engine.h"
 #include "framework/mesh.h"
 #include "framework/entity.h"
+#include "framework/utils.h"
 
 #include <filesystem>
 #include <iostream>
@@ -17,51 +18,65 @@ namespace GhostGame
     {
         using namespace Framework;
 
-        std::ifstream file("./game_config.json");
+        std::filesystem::path currentPath = std::filesystem::current_path();
+        std::ifstream file(getPathToCurrent("resources/game/config.json"));
         std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         auto config = boost::json::parse(content);
-        enemySpawnFrequency = config.at("enemySpawnFrequency").as_double();
+        _enemySpawnFrequency = config.at("enemySpawnFrequency").as_double();
 
-        for (const auto& entry : std::filesystem::directory_iterator("./environment"))
+        engine.addSystem<PlayerComponent>();
+        engine.addSystem<CameraComponent>();
+        auto& meshSystem = engine.addSystem<MeshComponent>();
+        engine.addSystem<EnemyComponent>();
+
+        for (const auto& entry : std::filesystem::directory_iterator(getPathToCurrent("resources/game/environment")))
         {
             if (entry.path().extension() == ".dae") {
-                auto mesh = std::make_unique<Mesh>(entry.path().string());
-                auto [id, entity] = engine.spawnEntity();
-                entity.components.push_back(std::make_unique<MeshRenderer>(std::move(mesh)));
+                auto& entity = engine.spawnEntity();                
+                auto& meshComp = meshSystem.addComponent(entity.id);
+                meshComp.mesh = std::make_unique<Mesh>(entry.path().string());
             }
         }
 
-        for (const auto& entry : std::filesystem::directory_iterator("./entities/enemy"))
+        for (const auto& entry : std::filesystem::directory_iterator(getPathToCurrent("resources/game/entities/enemy")))
         {
             if (entry.path().extension() == ".dae") {
-                enemyModel = std::make_shared<Mesh>(entry.path().string());
+                _enemyMesh = std::make_shared<Mesh>(entry.path().string());
                 break;
             }
         }
 
-        auto [id, player] = engine.spawnEntity();
-        playerId = id;
-        player.components.push_back(std::make_unique<PlayerBehavior>());
+        _playerId = engine.spawnEntity().id;
     }
 
     void Game::update(Framework::Engine& engine, float deltaTime)
     {
         using namespace Framework;
 
+        auto& enemySystem = engine.getSystem<EnemyComponent>();
+        auto& meshSystem = engine.getSystem<MeshComponent>();
+
         static auto lastSpawnTime = std::chrono::high_resolution_clock::now();
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - lastSpawnTime);
 
-        if (duration.count() >= enemySpawnFrequency) 
+        if (duration.count() >= _enemySpawnFrequency) 
         {
-            for (const auto& entry : std::filesystem::directory_iterator("./entities/enemy"))
-            {
-                auto& player = engine.getEntity(playerId);
-                auto [id, enemy] = engine.spawnEntity();
-                enemy.transform.position = player.transform.position;
-                enemy.components.push_back(std::make_unique<MeshRenderer>(enemyModel));
-                lastSpawnTime = now;
-            }
+            auto& player = engine.getEntity(_playerId);
+            auto& entity = engine.spawnEntity();
+            entity.transform.position = player.transform.position;
+            enemySystem.addComponent(entity.id);
+            auto& meshComp = meshSystem.addComponent(entity.id);
+            meshComp.mesh = _enemyMesh;
+
+            lastSpawnTime = now;
+        }
+
+        // Update player components
+        if (auto& entity = engine.getEntity(_playerId))
+        {
+            player.update(engine, entity, deltaTime);
+            camera.update(engine, entity, deltaTime);
         }
     }
 

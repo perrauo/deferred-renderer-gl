@@ -1,4 +1,7 @@
 #include "framework/engine.h"
+#include "framework/entity.h"
+#include "framework/renderer.h"
+#include "framework/game.h"
 
 #include "GLFW/glfw3.h"
 
@@ -11,8 +14,8 @@ namespace GhostGame::Framework
 
     void Engine::start(std::unique_ptr<IGame>&& game) 
     {
-        _game = std::move(game);
-        _game->start(*this);
+        this->game = std::move(game);
+        this->game->start(*this);
     }
 
     void Engine::processInput() {
@@ -28,18 +31,25 @@ namespace GhostGame::Framework
         processInput();
 
         std::vector<EntityId> entitiesToErase;
+
         for (auto& [id, entity] : _entities) {
-            entity.update(*this, deltaTime);
+            
+            for (auto& [typeidx, sys] : _systems)
+            {
+                sys->update(*this, entity, deltaTime);
+            }
+
             if (entity.markedForDeletion) {
                 entitiesToErase.push_back(id);
             }
         }
 
-        for (const auto& id : entitiesToErase) {
+        game->update(*this, deltaTime);
+
+        for (auto id : entitiesToErase)
+        {
             _entities.erase(id);
         }
-
-        _game->update(*this, deltaTime);
 
         _renderer->render();
     }
@@ -47,15 +57,14 @@ namespace GhostGame::Framework
     void Engine::stop() {
     }
 
+    Entity& Engine::spawnEntity()
+    {
+        return _entities[_nextEntityId++];
+    }
+
     void Engine::despawnEntity(EntityId id)
     {
         _entities.erase(id);
-    }
-
-    std::pair<EntityId, Entity&> Engine::spawnEntity()
-    {
-        Entity& entity = _entities[_nextEntityId];
-        return { _nextEntityId++, entity };
     }
 
     Entity& Engine::getEntity(EntityId id)
