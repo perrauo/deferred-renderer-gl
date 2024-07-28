@@ -418,3 +418,12 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+
+# Ninja build files
+*.ninja
+*.ninja_deps
+*.ninja_log
+build.ninja
+.ninja_log
+.ninja_deps
