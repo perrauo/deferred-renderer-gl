@@ -427,3 +427,9 @@ FodyWeavers.xsd
 build.ninja
 .ninja_log
 .ninja_deps
+
+# Add these lines to your .gitignore
+
+*.dll    # ignores .dll files
+*.lib    # ignores .lib files
+*.ilk    # ignores .ilk (incremental linking) files
