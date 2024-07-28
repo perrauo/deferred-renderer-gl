@@ -8,6 +8,10 @@ file(GLOB_RECURSE ENEMY_FILES
     ${CMAKE_SOURCE_DIR}/resources/game/entities/enemy/*.png
     ${CMAKE_SOURCE_DIR}/resources/game/entities/enemy/*.dae
 )
+file(GLOB_RECURSE ENEMY_SHADER_FILES
+    ${CMAKE_SOURCE_DIR}/resources/game/entities/enemy/*.vert
+    ${CMAKE_SOURCE_DIR}/resources/game/entities/enemy/*.frag
+)
 
 # Add all files in the environment directory
 file(GLOB_RECURSE ENV_FILES
@@ -19,15 +23,11 @@ file(GLOB_RECURSE CONFIG_FILES
     ${CMAKE_SOURCE_DIR}/resources/game/*.json
 )
 
-message("Enemy files: ${ENEMY_FILES}")
-message("Environment files: ${ENV_FILES}")
-message("Config files: ${CONFIG_FILES}")
-
 # Add your source files
 file(GLOB SOURCES "*.cpp")
 
 # Add executable
-add_executable(${TARGET_NAME} ${SOURCES})
+add_executable(${TARGET_NAME} ${SOURCES} ${ENEMY_SHADER_FILES} ${CONFIG_FILES})
 
 # Link libraries
 target_link_libraries(${TARGET_NAME} GhostGameFramework ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${GLFW_LIBRARIES} assimp)

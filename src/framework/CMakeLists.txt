@@ -14,7 +14,8 @@ file(GLOB SOURCES "*.cpp")
 source_group("Resources" FILES ${SHADER_FILES})
 
 # Add library
-add_library(${TARGET_NAME} SHARED ${SOURCES})
+# Let the shader file show up in the project
+add_library(${TARGET_NAME} SHARED ${SOURCES} ${SHADER_FILES})
 
 # Link libraries
 target_link_libraries(${TARGET_NAME} ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${GLFW_LIBRARIES} assimp)
