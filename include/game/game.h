@@ -13,7 +13,8 @@ namespace GhostGame
     {
         using EntityId = int;
         class Mesh;
-        class MeshRendererComponent;
+        class MeshComponent;
+        class Material;
     }
 
     class EnemyComponent;
@@ -27,6 +28,8 @@ namespace GhostGame
         Framework::EntityId _playerId = -1;
 
         std::shared_ptr<Framework::Mesh> _enemyMesh;
+
+        std::shared_ptr<Framework::Material> _lambertMaterial;
 
         float _enemySpawnFrequency = -1;
 

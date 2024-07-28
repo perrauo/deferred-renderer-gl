@@ -18,6 +18,7 @@ namespace GhostGame::Framework
         Transform transform;        
 
         bool markedForDeletion = false;
+        bool hasStarted = false;
 
         Entity() = default;
         ~Entity() = default;
@@ -25,19 +26,24 @@ namespace GhostGame::Framework
         Entity(const Entity&) = delete;
         Entity& operator=(const Entity&) = delete;
 
-        explicit operator bool() const {
+        operator bool() const {
             return id != -1;
-        }       
+        }
+        operator EntityId() const {
+            return id;
+        }
     };
 
     class GHOSTGAME_FRAMEWORK_API Component {
     public:
+        virtual void start(Engine& engine, Entity& entity) = 0;
         virtual void update(Engine& engine, Entity& entity, float deltaTime) = 0;
     };
     
     class ISystem 
     {
     public:
+        virtual void start(Engine& engine, Entity& entity) = 0;
         virtual void update(Engine& engine, Entity& entity, float deltaTime) = 0;
     };
 
@@ -52,6 +58,15 @@ namespace GhostGame::Framework
             return isValid;
         }
 
+        void start(Engine& engine, Entity& entity) override
+        {
+            auto it = _components.find(entity.id);
+            if (it != _components.end())
+            {
+                it->second.start(engine, entity);
+            }
+        }
+
         void update(Engine& engine, Entity& entity, float deltaTime) override
         {
             auto it = _components.find(entity.id);
@@ -59,6 +74,11 @@ namespace GhostGame::Framework
             {                
                 it->second.update(engine, entity, deltaTime);
             }
+        }
+
+        T& getComponent(EntityId id) {
+            // operator[] on an unordered_map will create a new element if the key doesn't exist
+            return _components[id];
         }
 
         T& addComponent(EntityId id) {

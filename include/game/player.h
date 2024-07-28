@@ -4,8 +4,11 @@
 
 namespace GhostGame
 {
-    class Entity;
-
+    namespace Framework
+    {
+        class CameraComponent;
+        using EntityId = int;
+    }
     // -------------------
     // PlayerComponent
     // -------------------
@@ -13,6 +16,10 @@ namespace GhostGame
     class PlayerComponent : public Framework::Component
     {
     public:
+        
+        glm::vec2 lastCursorPos;
+
+        void start(Framework::Engine& engine, Framework::Entity& entity) override;
         void update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime) override;
     };
 }

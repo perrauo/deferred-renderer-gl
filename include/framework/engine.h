@@ -3,7 +3,11 @@
 #include "framework/api.h"
 #include "framework/entity.h"
 #include "framework/renderer.h"
-#include "framework/shader.h"
+#include "framework/material.h"
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #include <memory>
 #include <unordered_map>
@@ -21,11 +25,9 @@ namespace GhostGame::Framework
     class IGame;
 
     class GHOSTGAME_FRAMEWORK_API Engine {
-    private:       
+    private:
         std::unordered_map<EntityId, Entity> _entities;
         std::unordered_map<std::type_index, std::unique_ptr<ISystem>> _systems;
-
-        std::unique_ptr<Renderer> _renderer;
 
         float _lastTime = 0;
 
@@ -33,14 +35,21 @@ namespace GhostGame::Framework
 
     public:
 
+        GLFWwindow* window = nullptr;
+
+        std::unique_ptr<Renderer> renderer;
         std::unique_ptr<IGame> game;
 
-        Engine(std::unique_ptr<Renderer>&& renderer);    
+        Engine();
 
         Engine(const Engine&) = delete;
         Engine& operator=(const Engine&) = delete;
 
-        void start(std::unique_ptr<IGame>&& game);
+        int launch();
+
+        void loop();
+
+        void startGame(std::unique_ptr<IGame>&& game);
 
         void processInput();
 
@@ -48,13 +57,15 @@ namespace GhostGame::Framework
 
         void stop();
 
+        glm::vec2 getCursorPos() const;
+
         template<typename T>
         System<T>& addSystem()
         {
             auto typeIndex = std::type_index(typeid(T));
             auto system = std::make_unique<System<T>>();
             auto& ref = *system;
-            _systems[typeIndex] = std::make_unique<System<T>>();
+            _systems[typeIndex] = std::move(system);
             return ref;
         }
 
@@ -68,6 +79,12 @@ namespace GhostGame::Framework
             System<T> sInvalidSystem;
             sInvalidSystem.isValid = false;
             return sInvalidSystem;
+        }
+
+        template<typename T>
+        T& getComponent(EntityId id)
+        {
+            return getSystem<T>().getComponent(id);
         }
 
         Entity& spawnEntity();

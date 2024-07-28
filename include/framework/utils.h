@@ -9,9 +9,13 @@
 #include <unistd.h>
 #endif
 
-namespace GhostGame
+#include <regex>
+
+#define NAMEOF(x) #x
+
+namespace GhostGame::Framework
 {
-    inline std::string getPathToCurrent(const std::string& relativePath)
+    inline std::string getResPath(const std::string& relativePath)
     {
         std::filesystem::path executablePath;
 
@@ -30,7 +34,20 @@ namespace GhostGame
         executablePath = std::filesystem::path(std::string(buffer, count > 0 ? count : 0)).parent_path();
 #endif
 
-        std::filesystem::path newPath = executablePath / std::filesystem::path(relativePath);
+        std::string modifiedRelativePath = relativePath;     
+        if (
+            !modifiedRelativePath.empty() && 
+            (modifiedRelativePath[0] == '\\' || modifiedRelativePath[0] == '/')            
+            )
+        {
+            modifiedRelativePath = modifiedRelativePath.substr(1);
+        }
+
+        modifiedRelativePath = std::regex_replace(modifiedRelativePath, std::regex("\\/\\/+"), "/");
+
+        std::filesystem::path newPath = executablePath / "resources" / modifiedRelativePath;
         return newPath.string();
     }
 }
+
+#define RES(relativePath) ::GhostGame::Framework::getResPath(relativePath)

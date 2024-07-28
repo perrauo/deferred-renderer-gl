@@ -30,7 +30,7 @@ file(GLOB SOURCES "*.cpp")
 add_executable(${TARGET_NAME} ${SOURCES} ${ENEMY_SHADER_FILES} ${CONFIG_FILES})
 
 # Link libraries
-target_link_libraries(${TARGET_NAME} GhostGameFramework ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${GLFW_LIBRARIES} assimp)
+target_link_libraries(${TARGET_NAME} GhostGameFramework ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} assimp)
 
 
 target_include_directories(${TARGET_NAME} PRIVATE include ${CMAKE_CURRENT_SOURCE_DIR}/src/framework)

@@ -2,7 +2,9 @@
 #include "game/types.h"
 
 #include "framework/engine.h"
+#include "framework/model.h"
 #include "framework/mesh.h"
+#include "framework/material.h"
 #include "framework/entity.h"
 #include "framework/utils.h"
 
@@ -18,35 +20,54 @@ namespace GhostGame
     {
         using namespace Framework;
 
-        std::filesystem::path currentPath = std::filesystem::current_path();
-        std::ifstream file(getPathToCurrent("resources/game/config.json"));
+        std::ifstream file(RES("game/config.json"));
         std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         auto config = boost::json::parse(content);
         _enemySpawnFrequency = config.at("enemySpawnFrequency").as_double();
 
-        engine.addSystem<PlayerComponent>();
-        engine.addSystem<CameraComponent>();
+        _playerId = engine.spawnEntity();
+        auto& playerSystem = engine.addSystem<PlayerComponent>();
+        auto& cameraSystem = engine.addSystem<CameraComponent>();
+        playerSystem.addComponent(_playerId);
+        cameraSystem.addComponent(_playerId);
+        
         auto& meshSystem = engine.addSystem<MeshComponent>();
         engine.addSystem<EnemyComponent>();
+        
+        _lambertMaterial = std::make_shared<Material>(Materials::Lambert::name, RES("framework/lambert"));
 
-        for (const auto& entry : std::filesystem::directory_iterator(getPathToCurrent("resources/game/environment")))
+        for (const auto& entry : std::filesystem::directory_iterator(RES("game/environment")))
         {
             if (entry.path().extension() == ".dae") {
-                auto& entity = engine.spawnEntity();                
-                auto& meshComp = meshSystem.addComponent(entity.id);
-                meshComp.mesh = std::make_unique<Mesh>(entry.path().string());
+                ModelLoadContext loadContext;
+                loadContext.baseTexturePath = "game/environment";
+                loadContext.baseMaterial = _lambertMaterial;
+                loadModel(entry.path().string(), loadContext);
+                for (auto& [_, loadedMesh] : loadContext.meshes)
+                {
+                    auto& entity = engine.spawnEntity();
+                    auto& meshComp = meshSystem.addComponent(entity);
+                    meshComp.mesh = loadedMesh.mesh;
+                    meshComp.material = loadedMesh.material;
+                    entity.transform = loadedMesh.transform;
+                }
             }
         }
 
-        for (const auto& entry : std::filesystem::directory_iterator(getPathToCurrent("resources/game/entities/enemy")))
+        for (const auto& entry : std::filesystem::directory_iterator(RES("game/entities/enemy")))
         {
             if (entry.path().extension() == ".dae") {
-                _enemyMesh = std::make_shared<Mesh>(entry.path().string());
-                break;
+                ModelLoadContext loadContext;
+                loadContext.baseTexturePath = "game/entities/enemy";
+                loadContext.baseMaterial = _lambertMaterial;
+                loadModel(entry.path().string(), loadContext);
+                for (auto& [_, loadedMesh] : loadContext.meshes)
+                {
+                    _enemyMesh = loadedMesh.mesh;
+                    break;
+                }
             }
         }
-
-        _playerId = engine.spawnEntity().id;
     }
 
     void Game::update(Framework::Engine& engine, float deltaTime)
@@ -65,18 +86,10 @@ namespace GhostGame
             auto& player = engine.getEntity(_playerId);
             auto& entity = engine.spawnEntity();
             entity.transform.position = player.transform.position;
-            enemySystem.addComponent(entity.id);
-            auto& meshComp = meshSystem.addComponent(entity.id);
+            enemySystem.addComponent(entity);
+            auto& meshComp = meshSystem.addComponent(entity);
             meshComp.mesh = _enemyMesh;
-
             lastSpawnTime = now;
-        }
-
-        // Update player components
-        if (auto& entity = engine.getEntity(_playerId))
-        {
-            player.update(engine, entity, deltaTime);
-            camera.update(engine, entity, deltaTime);
         }
     }
 

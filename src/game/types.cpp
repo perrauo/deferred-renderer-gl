@@ -5,8 +5,12 @@
 namespace GhostGame
 {   
     // -------------------
-    // EnemyBehavior
+    // EnemyComponent
     // -------------------
+
+    void EnemyComponent::start(Framework::Engine& engine, Framework::Entity& entity)
+    {
+    }
 
     void EnemyComponent::update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime)
     {

@@ -7,21 +7,24 @@ file(GLOB_RECURSE SHADER_FILES
     ${CMAKE_SOURCE_DIR}/resources/framework/*.vert
     ${CMAKE_SOURCE_DIR}/resources/framework/*.frag
 )
+file(GLOB_RECURSE CONFIG_FILES
+    ${CMAKE_SOURCE_DIR}/resources/framework/*.json
+)
 
 # Add your source files
 file(GLOB SOURCES "*.cpp")
 
-source_group("Resources" FILES ${SHADER_FILES})
+source_group("Resources" FILES ${SHADER_FILES} ${CONFIG_FILES})
 
 # Add library
 # Let the shader file show up in the project
-add_library(${TARGET_NAME} SHARED ${SOURCES} ${SHADER_FILES})
+add_library(${TARGET_NAME} SHARED ${SOURCES} ${SHADER_FILES} ${CONFIG_FILES})
 
 # Link libraries
-target_link_libraries(${TARGET_NAME} PUBLIC ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${GLFW_LIBRARIES} PRIVATE assimp assimp::assimp)
+target_link_libraries(${TARGET_NAME} PUBLIC ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} PRIVATE assimp assimp::assimp)
 
 # Include directories
-target_include_directories(${TARGET_NAME} PRIVATE ${assimp_INCLUDE_DIRS} include )
+target_include_directories(${TARGET_NAME} PUBLIC external/stb PRIVATE ${assimp_INCLUDE_DIRS} include )
 
 set_target_properties(${TARGET_NAME} PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
@@ -31,9 +34,8 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 
 install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
-
 # Copy files to build directory
-copy_files(${TARGET_NAME} ${ENV_FILES} ${SHADER_FILES})
+copy_files(${TARGET_NAME} ${ENV_FILES} ${SHADER_FILES} ${CONFIG_FILES})
 
 if(GLEW_FOUND)
   message("GLEW Libraries: ${GLEW_LIBRARIES}")

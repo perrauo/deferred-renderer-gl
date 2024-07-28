@@ -13,7 +13,7 @@ namespace GhostGame
     class EnemyComponent : public Framework::Component
     {
     public:
-
+        void start(Framework::Engine& engine, Framework::Entity& entity) override;
         void update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime) override;
     };
 }

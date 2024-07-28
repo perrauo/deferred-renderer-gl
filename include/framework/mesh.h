@@ -20,13 +20,20 @@ struct aiMesh;
 
 namespace GhostGame::Framework
 {
-    class Shader;
+    class Material;
+    class MaterialInstance;
     class Engine;
+
+    // -------------------
+    // Mesh
+    // -------------------
 
     class GHOSTGAME_FRAMEWORK_API Mesh {
 
-        GLuint VAO = 0, VBO = 0, EBO = 0;
+        GLuint VAO = 0, VBO = 0, EBO = 0;        
     public:
+
+        bool isLoaded = false;
         std::vector<GLfloat> vertices;
         std::vector<GLuint> indices;
 
@@ -40,47 +47,24 @@ namespace GhostGame::Framework
         // Render the mesh
         void draw() const;
 
-        // Load mesh from file
-        void loadModel(const std::string& path);
-
         // Initialize the mesh
-        void initModel();
-    };
+        void loadMesh();
 
-    struct ModelLoadResult
-    {
-        std::unique_ptr<Mesh> mesh;
+        void unloadMesh();
+    };   
 
-        unsigned int materialIdx = -1;
-
-        std::string texturePath;
-    };
-
-    struct ModelLoadContext
-    {
-        std::unordered_map<int, ModelLoadResult> results;
-
-    };
-
-    struct ModelLoadNodeContext
-    {
-        std::unordered_map<int, ModelLoadResult> results;
-
-    };
-
-    void loadModel(const std::string& path, ModelLoadContext& loadContext);
-
-    void loadModelProcessNode(ModelLoadContext& loadContext, aiNode* node, const aiScene* scene);
-
-    void loadModelProcessMesh(ModelLoadContext& loadContext, aiNode* node, unsigned int meshId, aiMesh* mesh, const aiScene* scene);
+    // -------------------
+    // MeshComponent
+    // -------------------
 
     class GHOSTGAME_FRAMEWORK_API MeshComponent : public Component
     {
     public:
         std::shared_ptr<Mesh> mesh;
 
-        std::shared_ptr<Shader> shader;
+        std::shared_ptr<MaterialInstance> material;
 
-        virtual void update(Engine& engine, Entity& entity, float deltaTime);
+        void start(Framework::Engine& engine, Framework::Entity& entity) override;
+        void update(Engine& engine, Entity& entity, float deltaTime) override;
     };
 }

@@ -13,11 +13,13 @@ set(ASSIMP_BUILD_SHARED_LIBS OFF)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORTER ON CACHE BOOL "")
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "")
-add_subdirectory(assimp)
+add_subdirectory(external/assimp)
+
+add_definitions(-DSTB_IMAGE_IMPLEMENTATION)
 
 # Extra module
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/assimp/cmake-modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/assimp/cmake-modules")
 include(utils)
 
 # find packages
@@ -26,12 +28,11 @@ find_package(OpenGL REQUIRED)
 add_definitions(-DGLEW_STATIC)
 set(GLEW_USE_STATIC_LIBS TRUE)
 find_package(GLEW REQUIRED static) # Add this line for GLEW
-find_package(GLUT REQUIRED static) # Add this line for FreeGlut
 find_package(GLFW REQUIRED static)
 find_package(assimp REQUIRED static)
 
 # include directories
-include_directories(${Boost_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} glm assimp/include include)
+include_directories(${Boost_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} external/glm external/gli external/stb external/assimp/include include)
 
 # Add subdirectories
 

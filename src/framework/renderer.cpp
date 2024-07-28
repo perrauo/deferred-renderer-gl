@@ -1,6 +1,6 @@
 #include "framework/renderer.h"
 #include "framework/utils.h"
-#include "framework/shader.h"
+#include "framework/material.h"
 
 #include <string>
 
@@ -12,22 +12,16 @@ namespace GhostGame::Framework
     // -------------------
 
     RenderPass::RenderPass(
-    const std::string& vertexShaderPath
-    , const std::string& fragmentShaderPath
+    const std::string& name
+    , const std::string& materialPath
     )
-    : RenderPass(
-    std::make_unique<Shader>(getPathToCurrent(vertexShaderPath))
-    , std::make_unique<Shader>(getPathToCurrent(fragmentShaderPath))
+    : RenderPass(std::make_shared<Material>(name, materialPath)
     )
     {
     }
 
-    RenderPass::RenderPass(
-    std::unique_ptr<Shader>&& vertexShader
-    , std::unique_ptr<Shader>&& fragmentShaer
-    )
-    : _vertexShader(std::move(vertexShader))
-    , _fragmentShader(std::move(fragmentShaer))
+    RenderPass::RenderPass(const std::shared_ptr<Material>& material)
+    : material(material)
     {
     }
 
@@ -38,6 +32,6 @@ namespace GhostGame::Framework
 
     void Renderer::render()
     {
-    
+        // TODO
     }
 }
