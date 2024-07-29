@@ -22,7 +22,6 @@ namespace GhostGame::Framework
         float nearClip = engine.config.at("Camera").at("nearClip").as_double();
         float farClip = engine.config.at("Camera").at("farClip").as_double();
 
-
         // Calculate the initial forward vector
         glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
         // Use the forward vector to calculate the initial view matrix
