@@ -68,7 +68,8 @@ namespace GhostGame::Framework
     }
 
     void Texture::bind(GLuint unit) const {
-        glActiveTexture(GL_TEXTURE0 + unit);
+        // GL_TEXTURE0 reserved by the deferred renderer
+        glActiveTexture(GL_TEXTURE1 + unit);
         glBindTexture(_textureTarget, _textureID);
     }
 }

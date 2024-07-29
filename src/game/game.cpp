@@ -9,6 +9,8 @@
 #include "framework/utils.h"
 #include "framework/light.h"
 
+#include <glm/gtc/random.hpp>
+
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -24,7 +26,10 @@ namespace GhostGame
         std::ifstream file(RES("game/config.json"));
         std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         config = boost::json::parse(content);
-        _enemySpawnFrequency = config.at("enemySpawnFrequency").as_double();
+        auto& enemy = config.at("Enemy").as_object();;
+        _enemySpawnFrequency = enemy.at("spawnFrequency").as_double();
+        auto& spawnDistance = enemy.at("spawnDistance");
+        _enemySpawnDistance = { spawnDistance.at("min").as_double(), spawnDistance.at("max").as_double() };
 
         auto& lightEntity = engine.spawnEntity();
         auto& lightSystem = engine.addSystem<PointLightComponent>();
@@ -70,6 +75,8 @@ namespace GhostGame
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {
                     _enemyMesh = loadedMesh.mesh;
+                    _enemyGeomMaterial = loadedMesh.geomMaterial;
+                    _enemyLightMaterial = loadedMesh.lightMaterial;
                     break;
                 }
             }
@@ -87,17 +94,31 @@ namespace GhostGame
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - lastSpawnTime);
 
-        if (duration.count() >= _enemySpawnFrequency) 
-        {
+
+        if (duration.count() >= _enemySpawnFrequency) {
             auto& player = engine.getEntity(_playerId);
             auto& entity = engine.spawnEntity();
-            entity.transform.position = player.transform.position;
+
+            // Calculate a random position around the player
+            float radius = glm::linearRand(_enemySpawnDistance.x, _enemySpawnDistance.y); // adjust this value to change the spawn distance
+            float angle = glm::radians(glm::linearRand(0.0f, 360.0f));
+            glm::vec3 spawnPosition = player.transform.position + glm::vec3(radius * cos(angle), 0, radius * sin(angle));
+
+            entity.transform.position = spawnPosition;
+
+            // Make the enemy face the player
+            glm::vec3 direction = glm::normalize(player.transform.position - spawnPosition);
+            entity.transform.rotation = glm::quatLookAt(direction, glm::vec3(0, 1, 0));
+
             enemySystem.addComponent(entity);
             auto& meshComp = meshSystem.addComponent(entity);
             meshComp.mesh = _enemyMesh;
+            meshComp.geomMaterial = _enemyGeomMaterial;
+            meshComp.lightMaterial = _enemyLightMaterial;
             lastSpawnTime = now;
         }
     }
+
 
     void Game::draw(Framework::Engine& engine, float deltaTime)
     {

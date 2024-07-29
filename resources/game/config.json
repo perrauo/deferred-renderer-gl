@@ -1,3 +1,10 @@
 {
-    "enemySpawnFrequency": 10.0
+    "Enemy": 
+    {
+        "spawnFrequency": 10.0,
+        "spawnDistance": {
+            "min": 50.0,
+            "max": 100.0
+        }
+    }
 }
