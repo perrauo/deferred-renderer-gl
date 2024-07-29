@@ -52,7 +52,8 @@ namespace GhostGame::Framework
 
         std::unique_ptr<Renderer> renderer;
         std::unique_ptr<IGame> game;
-        std::unique_ptr<Material> pointLightMaterial;
+        std::shared_ptr<Material> pointLightMaterial;
+        std::shared_ptr<Material> lambertMaterial;
 
         Engine();
 

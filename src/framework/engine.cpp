@@ -91,6 +91,7 @@ namespace GhostGame::Framework
         this->game = std::move(game);
         this->game->start(*this);
         this->pointLightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
+        this->lambertMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambert"));
 
         for (auto& [typeidx, sys] : _systems)
         {
@@ -117,6 +118,11 @@ namespace GhostGame::Framework
         using namespace RenderPasses::Geometry;
         auto& geometryRenderPass = renderer->geometryRenderPass;
         static auto lightType = std::type_index(typeid(PointLightComponent));
+
+        // Bind GBuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, renderer->gbuffer->gBuffer);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         for (auto& [typeidx, sys] : _systems)
         {
             if (typeidx == lightType) continue;
@@ -125,7 +131,12 @@ namespace GhostGame::Framework
                 sys->draw(*this, entity, deltaTime);
             }
         }
+
+        // Unbind GBuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
+
+
     void Engine::drawLights(float deltaTime)
     {
         auto& pointLightSys = getSystem<PointLightComponent>();

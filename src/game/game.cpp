@@ -32,16 +32,14 @@ namespace GhostGame
         cameraSystem.addComponent(_playerId);
         
         auto& meshSystem = engine.addSystem<MeshComponent>();
-        engine.addSystem<EnemyComponent>();
-        
-        _lambertMaterial = std::make_shared<Material>(Materials::Lambert::name, RES("framework/lambert"));
+        engine.addSystem<EnemyComponent>();       
 
         for (const auto& entry : std::filesystem::directory_iterator(RES("game/environment")))
         {
             if (entry.path().extension() == ".dae") {
                 ModelLoadContext loadContext;
                 loadContext.baseTexturePath = "game/environment";
-                loadContext.baseMaterial = _lambertMaterial;
+                loadContext.baseMaterial = engine.lambertMaterial;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {
@@ -59,7 +57,7 @@ namespace GhostGame
             if (entry.path().extension() == ".dae") {
                 ModelLoadContext loadContext;
                 loadContext.baseTexturePath = "game/entities/enemy";
-                loadContext.baseMaterial = _lambertMaterial;
+                loadContext.baseMaterial = engine.lambertMaterial;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {

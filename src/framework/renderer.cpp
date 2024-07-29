@@ -115,6 +115,7 @@ namespace GhostGame::Framework
     void Renderer::render(Engine& engine, float deltaTime)
     {
         using namespace RenderPasses;
+
         // 1. Geometry pass: render scene's geometry/color data into gbuffer
         glBindFramebuffer(GL_FRAMEBUFFER, gbuffer->gBuffer);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -128,14 +129,17 @@ namespace GhostGame::Framework
         // 2. Lighting pass: use the gbuffer to calculate the scene's lighting
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         lightingRenderPass->material->use();
+
+        // Bind GBuffer textures
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, gbuffer->gPosition);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, gbuffer->gNormal);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, gbuffer->gAlbedoSpec);
+
         engine.drawLights(deltaTime);
-        // Bind gbuffer textures here
-         glActiveTexture(GL_TEXTURE0);
-         glBindTexture(GL_TEXTURE_2D, gbuffer->gPosition);
-         glActiveTexture(GL_TEXTURE1);
-         glBindTexture(GL_TEXTURE_2D, gbuffer->gNormal);
-         glActiveTexture(GL_TEXTURE2);
-         glBindTexture(GL_TEXTURE_2D, gbuffer->gAlbedoSpec);
+
         // Draw a quad that covers the whole screen
         drawQuad(engine);
 
@@ -148,4 +152,5 @@ namespace GhostGame::Framework
         // TODO postprocessRenderPass->material->use();
         // drawQuad(engine);
     }
+
 }

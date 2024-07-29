@@ -29,8 +29,6 @@ namespace GhostGame
 
         std::shared_ptr<Framework::Mesh> _enemyMesh;
 
-        std::shared_ptr<Framework::Material> _lambertMaterial;
-
         float _enemySpawnFrequency = -1;
 
     public:        
