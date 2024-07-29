@@ -10,6 +10,11 @@
 #include <fstream>
 #include <boost/json.hpp>
 
+#include "GL/glew.h"
+#include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 namespace GhostGame::Framework
 {    
     Engine::Engine()
@@ -21,10 +26,16 @@ namespace GhostGame::Framework
         // Loop until the user closes the window
         while (!glfwWindowShouldClose(window))
         {
-            update();
+            float currentTime = glfwGetTime();
+            double deltaTime = currentTime - _lastTime;
+            _lastTime = currentTime;
+
+            update(deltaTime);
 
             // Render here
             glClear(GL_COLOR_BUFFER_BIT);
+
+            draw(deltaTime);
 
             // Swap front and back buffers
             glfwSwapBuffers(window);
@@ -47,10 +58,10 @@ namespace GhostGame::Framework
 
         // Create a windowed mode window and its OpenGL context
 
-        screenWidth = config.at("screenWidth").as_int64();
-        screenHeight = config.at("screenHeight").as_int64();
+        screenSize.x = config.at("screenWidth").as_int64();
+        screenSize.y = config.at("screenHeight").as_int64();
 
-        window = glfwCreateWindow(screenWidth, screenHeight, "Ghost Game", NULL, NULL);
+        window = glfwCreateWindow(screenSize.x, screenSize.y, "Ghost Game", NULL, NULL);
         if (!window)
         {
             std::cerr << "Failed to create GLFW window" << std::endl;
@@ -81,6 +92,29 @@ namespace GhostGame::Framework
         else {
             std::cout << "Failed to get OpenGL version." << std::endl;
         }
+
+
+        // Capture the mouse cursor
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        // Set the key callback function
+        glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+        {
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+            {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+        });
+
+        // regain mouse capture if click
+        glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods)
+        {
+            if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+            {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
+        });
+
         return 0;
     }
 
@@ -97,14 +131,17 @@ namespace GhostGame::Framework
         }
         // material setup before the game starts
         pointLightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
-        lambertMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambert"));
+        lambertGeomMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertGeom"));
+        lambertLightMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertLight"));
         return 0;
     }
 
     void Engine::startGame(std::unique_ptr<IGame>&& game)
     {
         this->game = std::move(game);
-        renderer->init(*this);
+        programStack.push(0);
+        gbuffer = std::make_unique<GBuffer>(screenSize.x, screenSize.y);
+        gbuffer->init();
         this->game->start(*this);
     }
 
@@ -118,41 +155,70 @@ namespace GhostGame::Framework
 
     void Engine::drawEntities(float deltaTime)
     {
-        using namespace RenderPasses::Geometry;
-        auto& geometryRenderPass = renderer->geometryRenderPass;
-        static auto lightType = std::type_index(typeid(PointLightComponent));
-
-        // Bind GBuffer
-        glBindFramebuffer(GL_FRAMEBUFFER, renderer->gbuffer->gBuffer);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        using namespace Materials;
 
         for (auto& [typeidx, sys] : _systems)
         {
-            if (typeidx == lightType) continue;
             for (auto& [id, entity] : _entities) {
-                geometryRenderPass->material->setUniform(Uniforms::model, entity.transform.getMatrix());
                 sys->draw(*this, entity, deltaTime);
             }
         }
-
-        // Unbind GBuffer
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
 
     void Engine::drawLights(float deltaTime)
     {
-        auto& pointLightSys = getSystem<PointLightComponent>();
-        for (auto& [id, entity] : _entities) {
-            pointLightSys.draw(*this, entity, deltaTime);
+        using namespace Materials;
+        
+        for (auto& [typeidx, sys] : _systems)
+        {
+            for (auto& [id, entity] : _entities) {
+                sys->drawLight(*this, entity, deltaTime);
+            }
         }
     }
 
-    void Engine::update() {
+    void Engine::endDrawLights(float deltaTime)
+    {
+        for (auto& [typeidx, sys] : _systems)
+        {
+            for (auto& [id, entity] : _entities) {
+                sys->endDrawLight(*this, entity, deltaTime);
+            }
+        }
+    }
 
-        float currentTime = glfwGetTime();
-        double deltaTime = currentTime - _lastTime;
-        _lastTime = currentTime;       
+    void Engine::draw(float deltaTime)
+    {
+        //testDraw(deltaTime);       
+
+        // Bind the GBuffer
+        gbuffer->bind();
+        // Bind the GBuffer textures
+        gbuffer->bindTextures();
+
+        // Clear the color and depth buffers
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Draw the entities
+        drawEntities(deltaTime);
+
+        // Unbind the GBuffer
+        gbuffer->unbind();
+
+        // Draw the lights
+        drawLights(deltaTime);
+
+        gbuffer->blitToDefaultFramebuffer();
+
+        gbuffer->bindForFinalPass();
+
+        gbuffer->drawQuad();
+
+        gbuffer->unbindTextures();
+    }
+
+    void Engine::update(float deltaTime) {
 
         std::vector<EntityId> entitiesToErase;
         std::vector<EntityId> entitiesToStart;
@@ -185,8 +251,6 @@ namespace GhostGame::Framework
         {
             _entities.erase(id);
         }
-
-        renderer->render(*this, deltaTime);
     }
 
     void Engine::stop() {
@@ -217,5 +281,73 @@ namespace GhostGame::Framework
         else {
             return sInvalidEntity;
         }
+    }
+
+    void Engine::testDraw(float deltaTime) {
+        static GLuint VAO = 0;
+        static GLuint VBO;
+        static GLuint EBO;
+        static GLuint programId;
+        static GLuint vertShaderId;
+        static GLuint fragShaderId;
+
+        if (!VAO) {
+            // Create a Vertex Array Object (VAO)
+            glGenVertexArrays(1, &VAO);
+            glBindVertexArray(VAO);
+
+            // Create a Vertex Buffer Object (VBO)
+            glGenBuffers(1, &VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+
+            // Create an Element Buffer Object (EBO)
+            glGenBuffers(1, &EBO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
+
+            // Specify the layout of the vertex data
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+            glEnableVertexAttribArray(0);
+
+            // Create and compile shaders
+            programId = glCreateProgram();
+            vertShaderId = glCreateShader(GL_VERTEX_SHADER);
+            const char* vertexShaderSourcePtr = vertexShaderSource;
+            glShaderSource(vertShaderId, 1, &vertexShaderSourcePtr, nullptr);
+            glCompileShader(vertShaderId);
+            glAttachShader(programId, vertShaderId);
+
+            fragShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+            const char* fragmentShaderSourcePtr = fragmentShaderSource;
+            glShaderSource(fragShaderId, 1, &fragmentShaderSourcePtr, nullptr);
+            glCompileShader(fragShaderId);
+            glAttachShader(programId, fragShaderId);
+
+            glLinkProgram(programId);
+        }
+
+        // Create a Model matrix
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -5.0f));
+
+        // Create a Projection matrix
+        glm::mat4 projection;
+        projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
+
+        // Get the locations of the 'model' and 'projection' uniform variables
+        GLint modelLoc = glGetUniformLocation(programId, "model");
+        GLint projLoc = glGetUniformLocation(programId, "projection");
+        GLint viewLoc = glGetUniformLocation(programId, "view");       
+
+        // Pass the matrices to the shader
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+        // Draw the cube
+        glUseProgram(programId);
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
     }
 }

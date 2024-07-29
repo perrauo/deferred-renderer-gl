@@ -39,6 +39,9 @@ namespace GhostGame::Framework
         virtual void start(Engine& engine, Entity& entity) {}
         virtual void update(Engine& engine, Entity& entity, float deltaTime) {}
         virtual void draw(Engine& engine, Entity& entity, float deltaTime) {}
+        virtual void endDraw(Engine& engine, Entity& entity, float deltaTime) {}
+        virtual void drawLight(Engine& engine, Entity& entity, float deltaTime) {}
+        virtual void endDrawLight(Engine& engine, Entity& entity, float deltaTime) {}
     };
     
     class ISystem 
@@ -47,6 +50,9 @@ namespace GhostGame::Framework
         virtual void start(Engine& engine, Entity& entity) = 0;
         virtual void update(Engine& engine, Entity& entity, float deltaTime) = 0;
         virtual void draw(Engine& engine, Entity& entity, float deltaTime) = 0;
+        virtual void endDraw(Engine& engine, Entity& entity, float deltaTime) = 0;
+        virtual void drawLight(Engine& engine, Entity& entity, float deltaTime) = 0;
+        virtual void endDrawLight(Engine& engine, Entity& entity, float deltaTime) = 0;
     };
 
     template<typename T>
@@ -78,6 +84,33 @@ namespace GhostGame::Framework
             if (it != _components.end())
             {
                 it->second.draw(engine, entity, deltaTime);
+            }
+        }
+
+        void endDraw(Engine& engine, Entity& entity, float deltaTime) override
+        {
+            auto it = _components.find(entity.id);
+            if (it != _components.end())
+            {
+                it->second.endDraw(engine, entity, deltaTime);
+            }
+        }
+
+        void drawLight(Engine& engine, Entity& entity, float deltaTime) override
+        {
+            auto it = _components.find(entity.id);
+            if (it != _components.end())
+            {
+                it->second.drawLight(engine, entity, deltaTime);
+            }
+        }
+
+        void endDrawLight(Engine& engine, Entity& entity, float deltaTime) override
+        {
+            auto it = _components.find(entity.id);
+            if (it != _components.end())
+            {
+                it->second.endDrawLight(engine, entity, deltaTime);
             }
         }
 

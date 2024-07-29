@@ -3,6 +3,7 @@
 #include "framework/material.h"
 #include "framework/mesh.h"
 #include "framework/texture.h"
+#include "framework/engine.h"
 
 #include <vector>
 #include <iostream>
@@ -78,9 +79,18 @@ namespace GhostGame::Framework
             result.mesh->normals.push_back(mesh->mNormals[i].x);
             result.mesh->normals.push_back(mesh->mNormals[i].y);
             result.mesh->normals.push_back(mesh->mNormals[i].z);
-            result.mesh->normals.push_back(mesh->mNormals[i].z);
         }
 
+        for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+        {
+            // TODO: multiple uv sets. For now assume a single uv set.
+            // mesh->mNumUVComponents is this it?
+            if (mesh->mTextureCoords[0]) // Check if texture coordinates exist
+            {
+                result.mesh->uvs.push_back(mesh->mTextureCoords[0][i].x);
+                result.mesh->uvs.push_back(mesh->mTextureCoords[0][i].y);
+            }
+        }
 
         for (unsigned int i = 0; i < mesh->mNumFaces; i++)
         {
@@ -93,8 +103,10 @@ namespace GhostGame::Framework
 
     void loadModelProcessMaterial(ModelLoadContext& loadContext, const aiScene* scene, const aiNode* node, unsigned int materialId)
     {       
-        auto material = std::make_shared<MaterialInstance>(loadContext.baseMaterial);
-        loadContext.materials[materialId] = material;        
+        auto& loadMaterial = loadContext.materials[materialId];
+        loadMaterial.geomMaterial = std::make_shared<MaterialInstance>(loadContext.baseGeomMaterial);
+        loadMaterial.lightMaterial = std::make_shared<MaterialInstance>(loadContext.baseLightMaterial);
+      
         aiMaterial* aiMaterial = scene->mMaterials[materialId];
         aiString aiTexturePath;
         std::shared_ptr<Texture> texture = nullptr;
@@ -112,12 +124,35 @@ namespace GhostGame::Framework
                 texture = it->second;
             }
         }
-        if (texture)
+
+        if (loadMaterial.geomMaterial->getName() == Materials::Lambert::name)
         {
-            if (material->getName() == Materials::Lambert::name)
+            if (texture)
             {
-                material->setUniform(Materials::Lambert::Uniforms::textureSampler, texture);
+                loadMaterial.geomMaterial->setUniform(Materials::Lambert::Uniforms::textureDiffuse, texture);
             }
+
+            auto& engine = loadContext.engine;
+            auto lambert = engine.config.at("Lambert").as_object();
+
+            float lightIntensity = lambert.at("lightIntensity").as_double();
+            loadMaterial.geomMaterial->setUniform(Materials::Lambert::Uniforms::lightIntensity, lightIntensity);
+            loadMaterial.lightMaterial->setUniform(Materials::Lambert::Uniforms::lightIntensity, lightIntensity);
+
+            auto lightColor = lambert.at("lightColor").as_object();
+            glm::vec3 color;
+            color.r = lightColor.at("r").as_double();
+            color.g = lightColor.at("g").as_double();
+            color.b = lightColor.at("b").as_double();
+            loadMaterial.geomMaterial->setUniform(Materials::Lambert::Uniforms::lightColor, color);
+            loadMaterial.lightMaterial->setUniform(Materials::Lambert::Uniforms::lightColor, color);
+
+            auto diffuseColor = lambert.at("diffuseColor").as_object();
+            color.r = diffuseColor.at("r").as_double();
+            color.g = diffuseColor.at("g").as_double();
+            color.b = diffuseColor.at("b").as_double();
+            loadMaterial.geomMaterial->setUniform(Materials::Lambert::Uniforms::diffuseColor, color);
+            loadMaterial.lightMaterial->setUniform(Materials::Lambert::Uniforms::diffuseColor, color);
         }
     }
 
@@ -153,9 +188,11 @@ namespace GhostGame::Framework
         for (auto& [_, mesh] : loadContext.meshes)
         {
             int materialIdx = mesh.materialIdx;
-            if (loadContext.materials.find(materialIdx) != loadContext.materials.end())
+            auto it = loadContext.materials.find(materialIdx);
+            if (it != loadContext.materials.end())
             {
-                mesh.material = loadContext.materials[materialIdx];
+                mesh.geomMaterial = it->second.geomMaterial;
+                mesh.lightMaterial = it->second.lightMaterial;
             }
         }
     }

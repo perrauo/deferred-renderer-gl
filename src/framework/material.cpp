@@ -1,6 +1,7 @@
 #include "framework/material.h"
 #include "framework/texture.h"
 #include "framework/utils.h"
+#include "framework/engine.h"
 
 #include <iostream>
 #include <fstream>
@@ -16,34 +17,6 @@
 namespace GhostGame::Framework
 {
     // -------------------
-    // Shader
-    // -------------------
-
-    Shader::Shader(const std::string& name, const std::string& shaderPath, GLenum shaderType)
-        : _name(name)
-        , _shaderType(shaderType)
-    {
-        _shaderId = glCreateShader(_shaderType);
-
-        // Read Shader from file
-        std::ifstream shaderFile(shaderPath);
-        std::stringstream shaderStream;
-        shaderStream << shaderFile.rdbuf();
-        std::string shaderSource = shaderStream.str();
-        shaderFile.close();
-
-        // Shader
-        const char* shaderSourceCStr = shaderSource.c_str();
-        glShaderSource(_shaderId, 1, &shaderSourceCStr, nullptr);
-        glCompileShader(_shaderId);
-    }
-
-    Shader::~Shader()
-    {
-        glDeleteShader(_shaderId);
-    }
-
-    // -------------------
     // Material
     // -------------------
 
@@ -52,9 +25,9 @@ namespace GhostGame::Framework
         const std::string& shaderPath
     ) :
         Material(
-            name
-            , shaderPath + ".vert"
-            , shaderPath + ".frag"
+        name
+        , shaderPath + ".vert"
+        , shaderPath + ".frag"
         )
     {
     }
@@ -80,6 +53,26 @@ namespace GhostGame::Framework
         const char* vertexSourceCStr = vertexSource.c_str();
         glShaderSource(_vertexShaderId, 1, &vertexSourceCStr, nullptr);
         glCompileShader(_vertexShaderId);
+
+        GLint isCompiled = 0;
+        glGetShaderiv(_vertexShaderId, GL_COMPILE_STATUS, &isCompiled);
+        if (isCompiled == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetShaderiv(_vertexShaderId, GL_INFO_LOG_LENGTH, &maxLength);
+
+            // The maxLength includes the NULL character
+            std::vector<GLchar> errorLog(maxLength);
+            glGetShaderInfoLog(_vertexShaderId, maxLength, &maxLength, &errorLog[0]);
+
+            // Provide the infolog in whatever manor you deem best.
+            std::cerr << "Vertex Shader compilation error: " << &errorLog[0] << std::endl;
+
+            // Exit with failure.
+            glDeleteShader(_vertexShaderId); // Don't leak the shader.
+            return;
+        }
+
         glAttachShader(_programId, _vertexShaderId);
 
         // Read Fragment Shader from file
@@ -94,9 +87,46 @@ namespace GhostGame::Framework
         const char* fragmentSourceCStr = fragmentSource.c_str();
         glShaderSource(_fragmentShaderId, 1, &fragmentSourceCStr, nullptr);
         glCompileShader(_fragmentShaderId);
+
+        isCompiled = 0;
+        glGetShaderiv(_fragmentShaderId, GL_COMPILE_STATUS, &isCompiled);
+        if (isCompiled == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetShaderiv(_fragmentShaderId, GL_INFO_LOG_LENGTH, &maxLength);
+
+            std::vector<GLchar> errorLog(maxLength);
+            glGetShaderInfoLog(_fragmentShaderId, maxLength, &maxLength, &errorLog[0]);
+
+            std::cerr << "Fragment Shader compilation error: " << &errorLog[0] << std::endl;
+
+            glDeleteShader(_fragmentShaderId);
+            glDeleteShader(_vertexShaderId);
+            return;
+        }
+
         glAttachShader(_programId, _fragmentShaderId);
 
         glLinkProgram(_programId);
+        // Check for linking errors
+        GLint isLinked = 0;
+        glGetProgramiv(_programId, GL_LINK_STATUS, &isLinked);
+        if (isLinked == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &maxLength);
+
+            // The maxLength includes the NULL character
+            std::vector<GLchar> errorLog(maxLength);
+            glGetProgramInfoLog(_programId, maxLength, &maxLength, &errorLog[0]);
+
+            // Provide the infolog in whatever manner you deem best.
+            std::cerr << "Shader linking error: " << &errorLog[0] << std::endl;
+
+            // Exit with failure.
+            glDeleteProgram(_programId); // Don't leak the program.
+            return;
+        }
     }
 
     Material::~Material()
@@ -109,43 +139,73 @@ namespace GhostGame::Framework
     void Material::setUniform(const std::string& name, float value)
     {
         GLuint location = glGetUniformLocation(_programId, name.c_str());
-        glUniform1f(location, value);
+        if (location != -1)
+        {
+            glUniform1f(location, value);
+        }
     }
 
     void Material::setUniform(const std::string& name, int value)
     {
         GLuint location = glGetUniformLocation(_programId, name.c_str());
-        glUniform1i(location, value);
+        if (location != -1)
+        {
+            glUniform1i(location, value);
+        }
     }
 
     void Material::setUniform(const std::string& name, const glm::vec2& value)
     {
         GLuint location = glGetUniformLocation(_programId, name.c_str());
-        glUniform2fv(location, 1, glm::value_ptr(value));
+        if (location != -1)
+        {
+            glUniform2fv(location, 1, glm::value_ptr(value));
+        }
     }
 
     void Material::setUniform(const std::string& name, const glm::vec3& value)
     {
         GLuint location = glGetUniformLocation(_programId, name.c_str());
-        glUniform3fv(location, 1, glm::value_ptr(value));
+        if (location != -1)
+        {
+            glUniform3fv(location, 1, glm::value_ptr(value));
+        }
     }
 
     void Material::setUniform(const std::string& name, const glm::vec4& value)
     {
         GLuint location = glGetUniformLocation(_programId, name.c_str());
-        glUniform4fv(location, 1, glm::value_ptr(value));
+        if (location != -1)
+        {
+            glUniform4fv(location, 1, glm::value_ptr(value));
+        }
     }
 
     void Material::setUniform(const std::string& name, const glm::mat4& value)
     {
         GLuint location = glGetUniformLocation(_programId, name.c_str());
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        if (location != -1)
+        {
+            glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        }
     }
 
-
-    void Material::use()
+    void Material::bind(Engine& engine)
     {
         glUseProgram(_programId);
+        engine.programStack.push(_programId);
+    }
+
+    void Material::unbind(Engine& engine)
+    {        
+        if (GLuint previousShaderId = engine.programStack.top())
+        {
+            engine.programStack.pop();
+            previousShaderId = engine.programStack.top();
+            glUseProgram(previousShaderId);
+            return;
+        }       
+        glUseProgram(0);
     }
 
     // -------------------
@@ -162,7 +222,7 @@ namespace GhostGame::Framework
         _intUniforms[name] = value;
     }
 
-    void MaterialInstance::setUniform(const std::string& name, const std::weak_ptr<Texture>& texture)
+    void MaterialInstance::setUniform(const std::string& name, const std::shared_ptr<Texture>& texture)
     {
         _textureUniforms[name] = texture;
     }
@@ -187,11 +247,19 @@ namespace GhostGame::Framework
         _mat4Uniforms[name] = value;
     }
 
-    void MaterialInstance::use()
+    void MaterialInstance::unbind(Engine& engine)
     {
-        if (auto material = _material.lock())
+        if (auto material = _material)
         {
-            material->use();
+            material->unbind(engine);
+        }
+    }
+
+    void MaterialInstance::bind(Engine& engine)
+    {        
+        if (auto material = _material)
+        {
+            material->bind(engine);
 
             // Set the uniforms
             for (const auto& uniform : _floatUniforms) {
@@ -213,7 +281,7 @@ namespace GhostGame::Framework
             // Set the texture uniforms
             int textureUnit = 0;
             for (const auto& textureUniform : _textureUniforms) {
-                if (auto texture = textureUniform.second.lock()) {
+                if (auto texture = textureUniform.second) {
                     texture->bind(textureUnit);
                     material->setUniform(textureUniform.first, textureUnit);
                     textureUnit++;

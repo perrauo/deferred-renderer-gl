@@ -3,6 +3,12 @@
 #include "framework/renderer.h"
 #include "framework/material.h"
 
+#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/matrix_transform.hpp>  // for glm::rotate
+#include <glm/gtc/quaternion.hpp>  // for glm::quat
+#include <glm/gtx/quaternion.hpp>  // for glm::rotate (quaternion)
+
 namespace GhostGame::Framework
 {
     void CameraComponent::start(Framework::Engine& engine, Framework::Entity& entity)
@@ -16,7 +22,11 @@ namespace GhostGame::Framework
         float nearClip = engine.config.at("Camera").at("nearClip").as_double();
         float farClip = engine.config.at("Camera").at("farClip").as_double();
 
-        engine.viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        // Calculate the initial forward vector
+        glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
+        // Use the forward vector to calculate the initial view matrix
+        engine.viewMatrix = glm::lookAt(entity.transform.position, forward, glm::vec3(0.0f, 1.0f, 0.0f));
         engine.projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip);
     }
 
@@ -35,8 +45,16 @@ namespace GhostGame::Framework
         // Combine the pitch, yaw and roll rotations
         glm::quat combinedRotation = glm::normalize(pitchQuat * yawQuat * rollQuat);
 
-        // Apply the combined rotation to the camera's view matrix
-        engine.viewMatrix = glm::mat4_cast(combinedRotation) * engine.viewMatrix;
+        // Calculate the camera's new forward, up and right vectors
+        glm::vec3 forward = glm::normalize(glm::rotate(combinedRotation, glm::vec3(0.0f, 0.0f, -1.0f)));
+        glm::vec3 up = glm::normalize(glm::rotate(combinedRotation, glm::vec3(0.0f, 1.0f, 0.0f)));
+        glm::vec3 right = glm::cross(forward, up);
+
+        // Calculate the camera's position
+        glm::vec3& position = entity.transform.position;
+
+        // Calculate the view matrix from the camera's position and orientation
+        engine.viewMatrix = glm::lookAt(position, position + forward, up);
     }
 
     void CameraComponent::draw(Framework::Engine& engine, Framework::Entity& entity, float deltaTime)

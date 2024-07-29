@@ -27,7 +27,8 @@ namespace GhostGame::Framework
     {
         if (_isBound)
         {
-        glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+            unbindTextures();
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
             _isBound = false;
         }
     }
@@ -41,6 +42,37 @@ namespace GhostGame::Framework
             _isBound = true;
         }
     }
+
+    void GBuffer::bindTextures()
+    {
+        if (!_areTexturesBound)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, gPosition);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, gNormal);
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+
+            _areTexturesBound = true;
+        }
+    }
+
+    void GBuffer::unbindTextures()
+    {
+        if (_areTexturesBound)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gPosition
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gNormal
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gAlbedoSpec
+
+            _areTexturesBound = false;
+        }
+    }
+
 
     void GBuffer::init()
     {
@@ -98,104 +130,62 @@ namespace GhostGame::Framework
         }
     }
 
-    // -------------------
-    // RenderPass
-    // -------------------
-
-    RenderPass::RenderPass(
-    const std::string& name
-    , const std::string& materialPath
-    )
-    : RenderPass(std::make_shared<Material>(name, materialPath)
-    )
+    void GBuffer::blitToDefaultFramebuffer()
     {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+        glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     }
 
-    RenderPass::RenderPass(const std::shared_ptr<Material>& material)
-    : material(material)
+    void GBuffer::bindForFinalPass()
     {
-    }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, gPosition);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, gNormal);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+    }   
 
-    // -------------------
-    // Renderer
-    // -------------------
-
-    void Renderer::drawQuad(Engine& engine)
+    // We are correctly drawing a quad filling the screen. This is fine
+    void GBuffer::drawQuad()
     {
-        static unsigned int quadVAO = 0;
-        static unsigned int quadVBO;
-        if (quadVAO == 0)
+        static GLuint quadVAO = 0, quadVBO;
+        if (!quadVAO)
         {
-            float quadVertices[] = {
-                // positions        // texture Coords
-                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-                 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-                 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            // Vertex data for fullscreen quad
+            GLfloat quadVertices[] = {
+                // Positions   // TexCoords
+                -1.0f,  1.0f,  0.0f, 1.0f,
+                -1.0f, -1.0f,  0.0f, 0.0f,
+                 1.0f, -1.0f,  1.0f, 0.0f,
+
+                -1.0f,  1.0f,  0.0f, 1.0f,
+                 1.0f, -1.0f,  1.0f, 0.0f,
+                 1.0f,  1.0f,  1.0f, 1.0f
             };
-            // setup plane VAO
+
+            // Setup quad VAO
             glGenVertexArrays(1, &quadVAO);
             glGenBuffers(1, &quadVBO);
             glBindVertexArray(quadVAO);
             glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
         }
+
         glBindVertexArray(quadVAO);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glEnableVertexAttribArray(0); // aPos
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDisableVertexAttribArray(0); // disable aPos
         glBindVertexArray(0);
     }
 
-    void Renderer::init(Engine& engine)
-    {
-        gbuffer->init();
-    }
-
-    void Renderer::render(Engine& engine, float deltaTime)
-    {
-        using namespace RenderPasses;
-
-        gbuffer->bind();
-        
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        geometryRenderPass->material->use();
-        geometryRenderPass->material->setUniform(Geometry::Uniforms::view, engine.viewMatrix);
-        geometryRenderPass->material->setUniform(Geometry::Uniforms::projection, engine.projectionMatrix);
-        engine.drawEntities(deltaTime);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        // 2. Lighting pass: use the gbuffer to calculate the scene's lighting
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        lightingRenderPass->material->use();
-
-        // Bind GBuffer textures
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, gbuffer->gPosition);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, gbuffer->gNormal);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, gbuffer->gAlbedoSpec);
-
-        engine.drawLights(deltaTime);
-
-        // Draw a quad that covers the whole screen
-        drawQuad(engine);
-
-        // 3. Copy the depth buffer to the default framebuffer's depth buffer
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, gbuffer->gBuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
-        glBlitFramebuffer(0, 0, engine.screenWidth, engine.screenHeight, 0, 0, engine.screenWidth, engine.screenHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-
-        gbuffer->unbind();
-
-        // 4. Post-processing pass
-        // TODO postprocessRenderPass->material->use();
-        // drawQuad(engine);
-    }
 
 }

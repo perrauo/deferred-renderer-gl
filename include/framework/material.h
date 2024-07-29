@@ -16,63 +16,52 @@
 
 namespace GhostGame::Framework
 {
-    class Texture;    
+    class Texture;
+    class Engine;
 
     namespace Materials
     {
+        namespace Uniforms
+        {
+            constexpr char position[] = "position";
+            constexpr char model[] = "model";
+            constexpr char view[] = "view";
+            constexpr char projection[] = "projection";
+            constexpr char textureSampler[] = "textureSampler";
+            constexpr char screenSize[] = "screenSize";
+        }
+        namespace Attributes
+        {
+            constexpr char position[] = "position";
+            constexpr char normal[] = "normal";
+            constexpr char uv[] = "uv";
+        }
+
+        namespace Outputs
+        {
+            constexpr char outNormal[] = "outNormal";
+            constexpr char outUv[] = "outUv";
+        }
+        namespace Varying
+        {
+            constexpr char normal[] = "normal";
+            constexpr char uv[] = "uv";
+        }
+
         namespace Lambert
         {
             constexpr char name[] = NAMEOF(Lambert);
 
             namespace Uniforms
             {
-                constexpr char textureSampler[] = "textureSampler";
-                constexpr char modelMatrix[] = "modelMatrix";
-                constexpr char viewMatrix[] = "viewMatrix";
-                constexpr char projectionMatrix[] = "projectionMatrix";
-                constexpr char matterialDiffuse[] = "materialDiffuse";
+                constexpr char diffuseColor[] = "diffuseColor";
                 constexpr char lightDirection[] = "lightDirection";
                 constexpr char lightColor[] = "lightColor";
-            }
-
-            namespace Attributes
-            {
-                constexpr char vertexPosition[] = "vertexPosition";
-                constexpr char vertexNormal[] = "vertexNormal";
-                constexpr char vertexUv[] = "vertexUv";
-            }
-
-            namespace Varying
-            {
-                constexpr char normal[] = "normal";
-                constexpr char uv[] = "uv";
+                constexpr char lightIntensity[] = "lightIntensity";
+                constexpr char textureDiffuse[] = "textureDiffuse";
             }
         }
     }
-
-
-    // -------------------
-    // Shader
-    // -------------------
-
-
-    class GHOSTGAME_FRAMEWORK_API Shader
-    {
-    private:
-        GLuint _shaderId;
-        std::string _name;
-        GLenum _shaderType;
-
-    public:
-        Shader(const std::string& name, const std::string& shaderPath, GLenum shaderType);
-        Shader(const Shader&) = delete;
-        Shader& operator=(const Shader&) = delete;
-        ~Shader();
-
-        GLuint getShaderId() const { return _shaderId; }
-        std::string getName() const { return _name; }
-        GLenum getShaderType() const { return _shaderType; }
-    };
 
 
     // -------------------
@@ -83,7 +72,9 @@ namespace GhostGame::Framework
     {
     public:
         
-        virtual void use() = 0;
+        virtual void bind(Engine& engine) = 0;
+
+        virtual void unbind(Engine& engine) = 0;
 
         virtual GLuint getProgramId() const = 0;
 
@@ -119,7 +110,9 @@ namespace GhostGame::Framework
 
         ~Material();
 
-        void use() override;
+        void bind(Engine& engine) override;
+
+        void unbind(Engine& engine) override;
 
         virtual std::string getName() const override { return _name; }
 
@@ -137,7 +130,7 @@ namespace GhostGame::Framework
 
         void setUniform(const std::string& name, const glm::mat4& value);
 
-        void setUniform(const std::string& name, const std::weak_ptr<Texture>& texture);
+        void setUniform(const std::string& name, const std::shared_ptr<Texture>& texture);
     };
 
     // -------------------
@@ -166,13 +159,15 @@ namespace GhostGame::Framework
 
         void setUniform(const std::string& name, const glm::mat4& value);
 
-        void setUniform(const std::string& name, const std::weak_ptr<Texture>& value);
+        void setUniform(const std::string& name, const std::shared_ptr<Texture>& value);
 
-        void use() override;
+        void bind(Engine& engine) override;
+
+        void unbind(Engine& engine) override;
 
         GLuint getProgramId() const override
         {
-            if (auto material = _material.lock())
+            if (auto material = _material)
             {
                 return material->getProgramId();
             }
@@ -181,7 +176,7 @@ namespace GhostGame::Framework
 
         std::string getName() const override
         {
-            if (auto material = _material.lock())
+            if (auto material = _material)
             {
                 return material->getName();
             }
@@ -189,8 +184,8 @@ namespace GhostGame::Framework
         }
 
     private:
-        std::weak_ptr<Material> _material;
-        std::unordered_map<std::string, std::weak_ptr<Texture>> _textureUniforms;
+        std::shared_ptr<Material> _material;
+        std::unordered_map<std::string, std::shared_ptr<Texture>> _textureUniforms;
         std::unordered_map<std::string, float> _intUniforms;
         std::unordered_map<std::string, float> _floatUniforms;
         std::unordered_map<std::string, glm::vec2> _vec2Uniforms;

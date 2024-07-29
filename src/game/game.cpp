@@ -7,6 +7,7 @@
 #include "framework/material.h"
 #include "framework/entity.h"
 #include "framework/utils.h"
+#include "framework/light.h"
 
 #include <filesystem>
 #include <iostream>
@@ -25,6 +26,10 @@ namespace GhostGame
         config = boost::json::parse(content);
         _enemySpawnFrequency = config.at("enemySpawnFrequency").as_double();
 
+        auto& lightEntity = engine.spawnEntity();
+        auto& lightSystem = engine.addSystem<PointLightComponent>();
+        lightSystem.addComponent(lightEntity);
+
         _playerId = engine.spawnEntity();
         auto& playerSystem = engine.addSystem<PlayerComponent>();
         auto& cameraSystem = engine.addSystem<CameraComponent>();
@@ -37,16 +42,18 @@ namespace GhostGame
         for (const auto& entry : std::filesystem::directory_iterator(RES("game/environment")))
         {
             if (entry.path().extension() == ".dae") {
-                ModelLoadContext loadContext;
+                ModelLoadContext loadContext{ .engine = engine };
                 loadContext.baseTexturePath = "game/environment";
-                loadContext.baseMaterial = engine.lambertMaterial;
+                loadContext.baseGeomMaterial = engine.lambertGeomMaterial;
+                loadContext.baseLightMaterial = engine.lambertLightMaterial;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {
                     auto& entity = engine.spawnEntity();
                     auto& meshComp = meshSystem.addComponent(entity);
                     meshComp.mesh = loadedMesh.mesh;
-                    meshComp.material = loadedMesh.material;
+                    meshComp.geomMaterial = loadedMesh.geomMaterial;
+                    meshComp.lightMaterial = loadedMesh.lightMaterial;
                     entity.transform = loadedMesh.transform;
                 }
             }
@@ -55,9 +62,10 @@ namespace GhostGame
         for (const auto& entry : std::filesystem::directory_iterator(RES("game/entities/enemy")))
         {
             if (entry.path().extension() == ".dae") {
-                ModelLoadContext loadContext;
+                ModelLoadContext loadContext{ .engine = engine };
                 loadContext.baseTexturePath = "game/entities/enemy";
-                loadContext.baseMaterial = engine.lambertMaterial;
+                loadContext.baseGeomMaterial = engine.lambertGeomMaterial;
+                loadContext.baseLightMaterial = engine.lambertLightMaterial;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {

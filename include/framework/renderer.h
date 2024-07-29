@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <stack>
 
 namespace GhostGame::Framework
 {
@@ -25,11 +26,8 @@ namespace GhostGame::Framework
 
             namespace Uniforms
             {
-                constexpr char model[] = "model";
-                constexpr char view[] = "view";
-                constexpr char projection[] = "projection";
-                constexpr char texture_diffuse1[] = "texture_diffuse1";
-                constexpr char texture_specular1[] = "texture_specular1";
+                constexpr char textureDiffuse[] = "textureDiffuse";
+                constexpr char textureSpecular[] = "textureSpecular";
             }
 
             namespace Attributes
@@ -82,6 +80,7 @@ namespace GhostGame::Framework
     class GHOSTGAME_FRAMEWORK_API GBuffer {
     
         bool _isBound = false;
+        bool _areTexturesBound = false;
         bool _isInit = false;
     
     public:
@@ -101,50 +100,14 @@ namespace GhostGame::Framework
 
         void bind();
         void unbind();
+        void bindTextures();
+        void unbindTextures();
         void init();
         void deinit();
+        void blitToDefaultFramebuffer();
+        void bindForFinalPass();
+        void drawQuad();
     };
-
-
-    class GHOSTGAME_FRAMEWORK_API RenderPass {        
-    public:
-        std::shared_ptr<Material> material;
-
-        RenderPass() = default;
-
-        ~RenderPass() = default;
-
-        RenderPass(
-        const std::string& name
-        , const std::string& materialPath
-        );
-
-        RenderPass(const std::shared_ptr<Material>& material);
-
-        RenderPass(const RenderPass&) = delete;
-        RenderPass& operator=(const RenderPass&) = delete;
-    };
-
-    class GHOSTGAME_FRAMEWORK_API Renderer {
-
-    public:        
-        std::unique_ptr<GBuffer> gbuffer;
-        std::unique_ptr<RenderPass> geometryRenderPass;
-        std::unique_ptr<RenderPass> lightingRenderPass;
-        std::unique_ptr<RenderPass> postprocessRenderPass;
-
-        Renderer() = default;
-
-        ~Renderer() = default;
-
-        Renderer(const Renderer&) = delete;
-        Renderer& operator=(const Renderer&) = delete;
-
-        void render(Engine& engine, float deltaTime);
-        void init(Engine& engine);
-    
-    private:
         
-        void drawQuad(Engine& engine);
-    };
+    void drawQuad(Engine& engine);
 }

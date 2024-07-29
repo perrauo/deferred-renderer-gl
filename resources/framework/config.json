@@ -12,10 +12,23 @@
     },
     "PointLight": {
         "lightColor": {
-            "r": 255,
-            "g": 255,
-            "b": 255
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
         },
         "lightIntensity": 1.0
+    },
+    "Lambert": {
+        "lightIntensity": 1.0,
+        "diffuseColor": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+        },
+        "lightColor": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+        }
     }
 }

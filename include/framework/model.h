@@ -33,7 +33,9 @@ namespace GhostGame::Framework
     {
         std::shared_ptr<Mesh> mesh;
 
-        std::shared_ptr<MaterialInstance> material;
+        std::shared_ptr<MaterialInstance> geomMaterial;
+
+        std::shared_ptr<MaterialInstance> lightMaterial;
 
         std::shared_ptr<Texture> texture;
 
@@ -44,12 +46,21 @@ namespace GhostGame::Framework
         Transform transform;
     };
 
+    struct GHOSTGAME_FRAMEWORK_API ModelLoadMaterial
+    {
+        std::shared_ptr<MaterialInstance> geomMaterial;
+
+        std::shared_ptr<MaterialInstance> lightMaterial;
+    };
+
     struct GHOSTGAME_FRAMEWORK_API ModelLoadContext
     {
-        std::shared_ptr<Material> baseMaterial;
+        Engine& engine;
+        std::shared_ptr<Material> baseGeomMaterial;
+        std::shared_ptr<Material> baseLightMaterial;
         std::string baseTexturePath;
         std::unordered_map<unsigned int, ModelLoadMesh> meshes;
-        std::unordered_map<unsigned int, std::shared_ptr<MaterialInstance>> materials;
+        std::unordered_map<unsigned int, ModelLoadMaterial> materials;
         std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
     };
 

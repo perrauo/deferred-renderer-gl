@@ -39,10 +39,14 @@ namespace GhostGame::Framework
     public:
         glm::vec3 color;
         float intensity;
-        std::shared_ptr<MaterialInstance> material;
+        std::shared_ptr<MaterialInstance> lightMaterial;
 
         virtual void start(Engine& engine, Entity& entity);
         virtual void update(Engine& engine, Entity& entity, float deltaTime);
-        virtual void draw(Engine& engine, Entity& entity, float deltaTime);
+        virtual void drawLight(Engine& engine, Entity& entity, float deltaTime);
+        virtual void endDrawLight(Engine& engine, Entity& entity, float deltaTime);
+
+    private:
+        virtual void doDrawLight(Engine& engine, Entity& entity, float deltaTime);
     };
 }

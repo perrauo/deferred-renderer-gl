@@ -35,6 +35,7 @@ namespace GhostGame::Framework
 
     class GHOSTGAME_FRAMEWORK_API Engine {
     private:
+
         std::unordered_map<EntityId, Entity> _entities;
         std::unordered_map<std::type_index, std::unique_ptr<ISystem>> _systems;
 
@@ -42,23 +43,24 @@ namespace GhostGame::Framework
 
         EntityId _nextEntityId = 0;
 
-        void update();
+        void update(float deltaTime);
 
         int setupGl();
 
     public:
 
         GLFWwindow* window = nullptr;
-        int screenHeight = 0;
-        int screenWidth = 0;
-
+        glm::vec2 screenSize = { 0, 0 };
         glm::mat4 viewMatrix = Math::Identity4x4;
         glm::mat4 projectionMatrix = Math::Identity4x4;
+        // TODO separate in a renderer class
+        std::stack<GLint> programStack;
+        std::unique_ptr<GBuffer> gbuffer;
 
-        std::unique_ptr<Renderer> renderer;
         std::unique_ptr<IGame> game;
         std::shared_ptr<Material> pointLightMaterial;
-        std::shared_ptr<Material> lambertMaterial;
+        std::shared_ptr<Material> lambertGeomMaterial;
+        std::shared_ptr<Material> lambertLightMaterial;
         boost::json::value config;
 
         Engine();
@@ -75,6 +77,12 @@ namespace GhostGame::Framework
         void drawEntities(float deltaTime);
 
         void drawLights(float deltaTime);
+
+        void endDrawLights(float deltaTime);
+
+        void testDraw(float deltaTime);
+
+        void draw(float deltaTime);
 
         void startGame(std::unique_ptr<IGame>&& game); 
 

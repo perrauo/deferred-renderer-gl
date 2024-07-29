@@ -30,13 +30,23 @@ namespace GhostGame::Framework
 
     class GHOSTGAME_FRAMEWORK_API Mesh {
 
-        GLuint VAO = 0, NBO = 0, VBO = 0, EBO = 0;
+        GLuint VAO = 0
+        // normals
+        , NBO = 0
+        // uvs
+        , UBO = 0
+        , VBO = 0
+        , EBO = 0;
 
         bool _isLoaded = false;
     public:
 
+        // vec3
         std::vector<GLfloat> vertices;
         std::vector<GLfloat> normals;
+        // vec2
+        std::vector<GLfloat> uvs;
+        // uint
         std::vector<GLuint> indices;
 
 
@@ -62,11 +72,13 @@ namespace GhostGame::Framework
     {
     public:
         std::shared_ptr<Mesh> mesh;
-
-        std::shared_ptr<MaterialInstance> material;
+        std::shared_ptr<MaterialInstance> geomMaterial;
+        std::shared_ptr<MaterialInstance> lightMaterial;
 
         void start(Framework::Engine& engine, Framework::Entity& entity) override;
         void update(Engine& engine, Entity& entity, float deltaTime) override;
         void draw(Engine& engine, Entity& entity, float deltaTime) override;
+        void drawLight(Engine& engine, Entity& entity, float deltaTime) override;
+        void endDrawLight(Engine& engine, Entity& entity, float deltaTime) override;
     };
 }
