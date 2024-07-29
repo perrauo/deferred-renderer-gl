@@ -12,14 +12,12 @@ namespace GhostGame::Framework
 {
     void PointLightComponent::start(Engine& engine, Entity& entity)
     {
-        std::ifstream configFile("config.json");
-        boost::json::value configJson = boost::json::parse(configFile);
-        auto pointLight = configJson.at("PointLight").as_object();
-        auto pointLightColor = pointLight.at("color").as_object();
+        auto pointLight = engine.config.at("PointLight").as_object();
+        auto pointLightColor = engine.config.at("lightColor").as_object();
         color.r = pointLightColor.at("r").as_int64();
         color.g = pointLightColor.at("g").as_int64();
         color.b = pointLightColor.at("b").as_int64();
-        intensity = pointLight.at("intensity").as_double();
+        intensity = pointLight.at("lightIntensity").as_double();
         material = std::make_shared<MaterialInstance>(engine.pointLightMaterial);
     }
     

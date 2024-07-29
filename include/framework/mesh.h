@@ -30,11 +30,13 @@ namespace GhostGame::Framework
 
     class GHOSTGAME_FRAMEWORK_API Mesh {
 
-        GLuint VAO = 0, VBO = 0, EBO = 0;        
+        GLuint VAO = 0, NBO = 0, VBO = 0, EBO = 0;
+
+        bool _isLoaded = false;
     public:
 
-        bool isLoaded = false;
         std::vector<GLfloat> vertices;
+        std::vector<GLfloat> normals;
         std::vector<GLuint> indices;
 
 
@@ -47,10 +49,9 @@ namespace GhostGame::Framework
         // Render the mesh
         void draw() const;
 
-        // Initialize the mesh
-        void loadMesh();
+        void load();
 
-        void unloadMesh();
+        void unload();
     };   
 
     // -------------------
@@ -66,5 +67,6 @@ namespace GhostGame::Framework
 
         void start(Framework::Engine& engine, Framework::Entity& entity) override;
         void update(Engine& engine, Entity& entity, float deltaTime) override;
+        void draw(Engine& engine, Entity& entity, float deltaTime) override;
     };
 }

@@ -3,24 +3,18 @@
 #include "framework/renderer.h"
 #include "framework/material.h"
 
-#include <fstream>
-#include <boost/json.hpp>
-
 namespace GhostGame::Framework
 {
     void CameraComponent::start(Framework::Engine& engine, Framework::Entity& entity)
     {
-        std::ifstream config_file("config.json");
-        boost::json::value config_json = boost::json::parse(config_file);
+        pitch = engine.config.at("Camera").at("pitch").as_double();
+        yaw = engine.config.at("Camera").at("yaw").as_double();
+        roll = engine.config.at("Camera").at("roll").as_double();
 
-        pitch = config_json.at("Camera").at("pitch").as_double();
-        yaw = config_json.at("Camera").at("yaw").as_double();
-        roll = config_json.at("Camera").at("roll").as_double();
-
-        float fov = config_json.at("Camera").at("fov").as_double();
-        float aspectRatio = config_json.at("Camera").at("aspectRatio").as_double();
-        float nearClip = config_json.at("Camera").at("nearClip").as_double();
-        float farClip = config_json.at("Camera").at("farClip").as_double();
+        float fov = engine.config.at("Camera").at("fov").as_double();
+        float aspectRatio = engine.config.at("Camera").at("aspectRatio").as_double();
+        float nearClip = engine.config.at("Camera").at("nearClip").as_double();
+        float farClip = engine.config.at("Camera").at("farClip").as_double();
 
         engine.viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         engine.projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip);

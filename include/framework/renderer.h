@@ -80,6 +80,10 @@ namespace GhostGame::Framework
     }
 
     class GHOSTGAME_FRAMEWORK_API GBuffer {
+    
+        bool _isBound = false;
+        bool _isInit = false;
+    
     public:
         unsigned int gBuffer = 0;
         unsigned int gPosition = 0, gNormal = 0, gAlbedoSpec = 0;
@@ -89,11 +93,16 @@ namespace GhostGame::Framework
         int screenWidth = 0;
         int screenHeight = 0;
         
-        GBuffer();
+        GBuffer(int screenWidth, int screenHight);
         ~GBuffer();
         GBuffer(GBuffer&&) = default;
         GBuffer(const GBuffer&) = delete;
         GBuffer& operator=(const GBuffer&) = delete;
+
+        void bind();
+        void unbind();
+        void init();
+        void deinit();
     };
 
 
@@ -132,8 +141,10 @@ namespace GhostGame::Framework
         Renderer& operator=(const Renderer&) = delete;
 
         void render(Engine& engine, float deltaTime);
+        void init(Engine& engine);
     
     private:
+        
         void drawQuad(Engine& engine);
     };
 }

@@ -26,6 +26,9 @@
 #include <typeindex>
 #include <typeinfo>
 
+#include <fstream>
+#include <boost/json.hpp>
+
 namespace GhostGame::Framework
 {
     using EntityId = int;
@@ -41,6 +44,8 @@ namespace GhostGame::Framework
 
         void update();
 
+        int setupGl();
+
     public:
 
         GLFWwindow* window = nullptr;
@@ -54,6 +59,7 @@ namespace GhostGame::Framework
         std::unique_ptr<IGame> game;
         std::shared_ptr<Material> pointLightMaterial;
         std::shared_ptr<Material> lambertMaterial;
+        boost::json::value config;
 
         Engine();
 
@@ -93,7 +99,7 @@ namespace GhostGame::Framework
             if (it != _systems.end()) {
                 return *static_cast<System<T>*>(it->second.get());
             }
-            System<T> sInvalidSystem;
+            static System<T> sInvalidSystem;
             sInvalidSystem.isValid = false;
             return sInvalidSystem;
         }

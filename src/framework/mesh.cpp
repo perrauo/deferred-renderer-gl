@@ -30,7 +30,7 @@ namespace GhostGame::Framework
 
     Mesh::Mesh(const std::vector<GLfloat>& vertices, const std::vector<GLuint>& indices)
         : vertices(vertices), indices(indices) {
-        unloadMesh();
+        unload();
     }
 
     Mesh::Mesh(const std::string& path) {
@@ -43,37 +43,46 @@ namespace GhostGame::Framework
         glBindVertexArray(0);
     }
 
-    void Mesh::unloadMesh()
+    void Mesh::unload()
     {
-        if (isLoaded)
+        if (_isLoaded)
         {
             glDeleteBuffers(1, &VBO);
+            glDeleteBuffers(1, &NBO);
             glDeleteBuffers(1, &EBO);
             glDeleteVertexArrays(1, &VAO);
-            isLoaded = false;
+            _isLoaded = false;
         }
     }
 
-    void Mesh::loadMesh()
+    void Mesh::load()
     {
-        if (!isLoaded)
+        if (!_isLoaded)
         {
             glGenVertexArrays(1, &VAO);
             glBindVertexArray(VAO);
 
+            // Vertices
             glGenBuffers(1, &VBO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+            glEnableVertexAttribArray(0);
 
+            // Normals
+            glGenBuffers(1, &NBO);
+            glBindBuffer(GL_ARRAY_BUFFER, NBO);
+            glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(GLfloat), &normals[0], GL_STATIC_DRAW);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+            glEnableVertexAttribArray(1);
+
+            // Indices
             glGenBuffers(1, &EBO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-            glEnableVertexAttribArray(0);
-
-            glBindVertexArray(0);
-            isLoaded = true;
+            glBindVertexArray(0); // Unbind VAO
+            _isLoaded = true;
         }
     }
 
@@ -88,11 +97,15 @@ namespace GhostGame::Framework
         if (mesh)
         {
             // Load mesh if necessary
-            mesh->loadMesh();
+            mesh->load();
         }
     }
 
     void MeshComponent::update(Engine& engine, Entity& entity, float deltaTime)
+    {
+    }
+
+    void MeshComponent::draw(Engine& engine, Entity& entity, float deltaTime)
     {
         if (mesh)
         {
@@ -112,8 +125,10 @@ namespace GhostGame::Framework
                 material->use();
             }
 
+            // Bind the VAO of the mesh and draw it
             // Draw the mesh
             mesh->draw();
+
 
             // Restore the previous model view matrix
             glPopMatrix();

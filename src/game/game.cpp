@@ -22,7 +22,7 @@ namespace GhostGame
 
         std::ifstream file(RES("game/config.json"));
         std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        auto config = boost::json::parse(content);
+        config = boost::json::parse(content);
         _enemySpawnFrequency = config.at("enemySpawnFrequency").as_double();
 
         _playerId = engine.spawnEntity();

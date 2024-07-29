@@ -36,7 +36,7 @@ namespace GhostGame::Framework
         glfwTerminate();
     }
 
-    int Engine::setup()
+    int Engine::setupGl()
     {
         // Initialize the library
         if (!glfwInit())
@@ -47,9 +47,6 @@ namespace GhostGame::Framework
 
         // Create a windowed mode window and its OpenGL context
 
-        std::ifstream file(RES("framework/config.json"));
-        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        auto config = boost::json::parse(content);
         screenWidth = config.at("screenWidth").as_int64();
         screenHeight = config.at("screenHeight").as_int64();
 
@@ -84,25 +81,31 @@ namespace GhostGame::Framework
         else {
             std::cout << "Failed to get OpenGL version." << std::endl;
         }
+        return 0;
+    }
+
+    int Engine::setup()
+    {        
+        // setup config
+        std::ifstream file(RES("framework/config.json"));
+        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        config = boost::json::parse(content);
+
+        if (setupGl() != 0)
+        {
+            return -1;
+        }
+        // material setup before the game starts
+        pointLightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
+        lambertMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambert"));
+        return 0;
     }
 
     void Engine::startGame(std::unique_ptr<IGame>&& game)
     {
         this->game = std::move(game);
+        renderer->init(*this);
         this->game->start(*this);
-        this->pointLightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
-        this->lambertMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambert"));
-
-        for (auto& [typeidx, sys] : _systems)
-        {
-            for (auto& [id, entity] : _entities) {
-
-                sys->start(*this, entity);
-            }
-        }
-        for (auto& [id, entity] : _entities) {
-            entity.hasStarted = true;
-        }
     }
 
     glm::vec2 Engine::getCursorPos() const

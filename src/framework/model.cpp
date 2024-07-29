@@ -73,6 +73,15 @@ namespace GhostGame::Framework
             result.mesh->vertices.push_back(mesh->mVertices[i].z);
         }
 
+        for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+        {
+            result.mesh->normals.push_back(mesh->mNormals[i].x);
+            result.mesh->normals.push_back(mesh->mNormals[i].y);
+            result.mesh->normals.push_back(mesh->mNormals[i].z);
+            result.mesh->normals.push_back(mesh->mNormals[i].z);
+        }
+
+
         for (unsigned int i = 0; i < mesh->mNumFaces; i++)
         {
             aiFace face = mesh->mFaces[i];

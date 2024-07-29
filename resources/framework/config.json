@@ -11,11 +11,11 @@
         "farClip": 100.0
     },
     "PointLight": {
-        "color": {
+        "lightColor": {
             "r": 255,
             "g": 255,
             "b": 255
         },
-        "intensity": 1.0
+        "lightIntensity": 1.0
     }
 }

@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <boost/json.hpp>
 
 namespace GhostGame
 {
@@ -26,12 +27,12 @@ namespace GhostGame
     private:
 
         Framework::EntityId _playerId = -1;
-
         std::shared_ptr<Framework::Mesh> _enemyMesh;
-
         float _enemySpawnFrequency = -1;
 
     public:        
+
+        boost::json::value config;
 
         Game() = default;
 
