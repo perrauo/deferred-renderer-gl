@@ -35,4 +35,8 @@ namespace GhostGame
         if (camera.pitch < -89.0f)
             camera.pitch = -89.0f;
     }
+
+    void PlayerComponent::draw(Framework::Engine& engine, Framework::Entity& entity, float deltaTime)
+    { 
+    }
 }

@@ -3,18 +3,31 @@
 #include "framework/renderer.h"
 #include "framework/material.h"
 
+#include <fstream>
+#include <boost/json.hpp>
+
 namespace GhostGame::Framework
 {
     void CameraComponent::start(Framework::Engine& engine, Framework::Entity& entity)
     {
-        viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        projectionMatrix = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        std::ifstream config_file("config.json");
+        boost::json::value config_json = boost::json::parse(config_file);
+
+        pitch = config_json.at("Camera").at("pitch").as_double();
+        yaw = config_json.at("Camera").at("yaw").as_double();
+        roll = config_json.at("Camera").at("roll").as_double();
+
+        float fov = config_json.at("Camera").at("fov").as_double();
+        float aspectRatio = config_json.at("Camera").at("aspectRatio").as_double();
+        float nearClip = config_json.at("Camera").at("nearClip").as_double();
+        float farClip = config_json.at("Camera").at("farClip").as_double();
+
+        engine.viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        engine.projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip);
     }
 
     void CameraComponent::update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime)
-    {       
-        using namespace RenderPasses::Geometry;
-
+    {
         // Convert pitch, yaw and roll angles to radians
         float pitchRadians = glm::radians(pitch);
         float yawRadians = glm::radians(yaw);
@@ -29,8 +42,10 @@ namespace GhostGame::Framework
         glm::quat combinedRotation = glm::normalize(pitchQuat * yawQuat * rollQuat);
 
         // Apply the combined rotation to the camera's view matrix
-        viewMatrix = glm::mat4_cast(combinedRotation) * viewMatrix;
+        engine.viewMatrix = glm::mat4_cast(combinedRotation) * engine.viewMatrix;
+    }
 
-        engine.renderer->geometryRenderPass->material->setUniform(Uniforms::viewMatrix, viewMatrix);
+    void CameraComponent::draw(Framework::Engine& engine, Framework::Entity& entity, float deltaTime)
+    {
     }
 }

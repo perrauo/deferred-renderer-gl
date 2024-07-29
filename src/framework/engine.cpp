@@ -2,14 +2,12 @@
 #include "framework/entity.h"
 #include "framework/renderer.h"
 #include "framework/game.h"
+#include "framework/light.h"
 
 #include "GLFW/glfw3.h"
 
 #include <iostream>
-#include <filesystem>
-#include <iostream>
 #include <fstream>
-#include <iterator>
 #include <boost/json.hpp>
 
 namespace GhostGame::Framework
@@ -38,7 +36,7 @@ namespace GhostGame::Framework
         glfwTerminate();
     }
 
-    int Engine::launch()
+    int Engine::setup()
     {
         // Initialize the library
         if (!glfwInit())
@@ -52,10 +50,10 @@ namespace GhostGame::Framework
         std::ifstream file(RES("framework/config.json"));
         std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         auto config = boost::json::parse(content);
-        int windowWidth = config.at("windowWidth").as_int64();
-        int windowHeight = config.at("windowHeight").as_int64();
+        screenWidth = config.at("screenWidth").as_int64();
+        screenHeight = config.at("screenHeight").as_int64();
 
-        window = glfwCreateWindow(windowWidth, windowHeight, "Ghost Game", NULL, NULL);
+        window = glfwCreateWindow(screenWidth, screenHeight, "Ghost Game", NULL, NULL);
         if (!window)
         {
             std::cerr << "Failed to create GLFW window" << std::endl;
@@ -92,18 +90,18 @@ namespace GhostGame::Framework
     {
         this->game = std::move(game);
         this->game->start(*this);
-        for (auto& [id, entity] : _entities) {
+        this->pointLightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
 
-            for (auto& [typeidx, sys] : _systems)
-            {
+        for (auto& [typeidx, sys] : _systems)
+        {
+            for (auto& [id, entity] : _entities) {
+
                 sys->start(*this, entity);
             }
+        }
+        for (auto& [id, entity] : _entities) {
             entity.hasStarted = true;
         }
-    }
-
-    void Engine::processInput() {
-        // Implement your input processing logic here
     }
 
     glm::vec2 Engine::getCursorPos() const
@@ -114,13 +112,33 @@ namespace GhostGame::Framework
         return glm::vec2(x, y);
     }
 
+    void Engine::drawEntities(float deltaTime)
+    {
+        using namespace RenderPasses::Geometry;
+        auto& geometryRenderPass = renderer->geometryRenderPass;
+        static auto lightType = std::type_index(typeid(PointLightComponent));
+        for (auto& [typeidx, sys] : _systems)
+        {
+            if (typeidx == lightType) continue;
+            for (auto& [id, entity] : _entities) {
+                geometryRenderPass->material->setUniform(Uniforms::model, entity.transform.getMatrix());
+                sys->draw(*this, entity, deltaTime);
+            }
+        }
+    }
+    void Engine::drawLights(float deltaTime)
+    {
+        auto& pointLightSys = getSystem<PointLightComponent>();
+        for (auto& [id, entity] : _entities) {
+            pointLightSys.draw(*this, entity, deltaTime);
+        }
+    }
+
     void Engine::update() {
 
         float currentTime = glfwGetTime();
         double deltaTime = currentTime - _lastTime;
-        _lastTime = currentTime;
-        
-        processInput();
+        _lastTime = currentTime;       
 
         std::vector<EntityId> entitiesToErase;
         std::vector<EntityId> entitiesToStart;
@@ -131,21 +149,19 @@ namespace GhostGame::Framework
             {
                 for (auto& [typeidx, sys] : _systems)
                 {
-                    sys->update(*this, entity, deltaTime);
+                    sys->start(*this, entity);
                 }
                 entity.hasStarted = true;
             }
         }
-
-        for (auto& [id, entity] : _entities) {
-                        
-            for (auto& [typeidx, sys] : _systems)
-            {
+     
+        for (auto& [typeidx, sys] : _systems)
+        {
+            for (auto& [id, entity] : _entities) {
                 sys->update(*this, entity, deltaTime);
-            }
-
-            if (entity.markedForDeletion) {
-                entitiesToErase.push_back(id);
+                if (entity.markedForDeletion) {
+                    entitiesToErase.push_back(id);
+                }
             }
         }
 
@@ -156,7 +172,7 @@ namespace GhostGame::Framework
             _entities.erase(id);
         }
 
-        renderer->render();
+        renderer->render(*this, deltaTime);
     }
 
     void Engine::stop() {

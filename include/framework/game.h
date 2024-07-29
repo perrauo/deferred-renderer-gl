@@ -8,8 +8,8 @@ namespace GhostGame::Framework
 
     class GHOSTGAME_FRAMEWORK_API IGame {
     public:
-        virtual void start(Engine& engine) = 0;
-        virtual void update(Engine& engine, float deltaTime) = 0;
-        virtual void render(Engine& engine) = 0;
+        virtual void start(Engine& engine) {}
+        virtual void update(Engine& engine, float deltaTime) {}
+        virtual void draw(Engine& engine, float deltaTime) {}
     };
 }

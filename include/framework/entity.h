@@ -36,8 +36,9 @@ namespace GhostGame::Framework
 
     class GHOSTGAME_FRAMEWORK_API Component {
     public:
-        virtual void start(Engine& engine, Entity& entity) = 0;
-        virtual void update(Engine& engine, Entity& entity, float deltaTime) = 0;
+        virtual void start(Engine& engine, Entity& entity) {}
+        virtual void update(Engine& engine, Entity& entity, float deltaTime) {}
+        virtual void draw(Engine& engine, Entity& entity, float deltaTime) {}
     };
     
     class ISystem 
@@ -45,12 +46,16 @@ namespace GhostGame::Framework
     public:
         virtual void start(Engine& engine, Entity& entity) = 0;
         virtual void update(Engine& engine, Entity& entity, float deltaTime) = 0;
+        virtual void draw(Engine& engine, Entity& entity, float deltaTime) = 0;
     };
 
     template<typename T>
     class System : public ISystem 
     {    
+        // TODO: We need to optimize with contiguous datatype
+        // otherwise this defeats the point of ECS
         std::unordered_map<EntityId, T> _components;
+    
     public:
         bool isValid = true;
 
@@ -64,6 +69,15 @@ namespace GhostGame::Framework
             if (it != _components.end())
             {
                 it->second.start(engine, entity);
+            }
+        }
+
+        void draw(Engine& engine, Entity& entity, float deltaTime) override
+        {
+            auto it = _components.find(entity.id);
+            if (it != _components.end())
+            {
+                it->second.draw(engine, entity, deltaTime);
             }
         }
 

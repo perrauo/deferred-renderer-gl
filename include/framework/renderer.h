@@ -3,6 +3,9 @@
 #include "framework/api.h"
 #include "framework/utils.h"
 
+#include "GL/glew.h"
+#include "GLFW/glfw3.h"
+
 #include <memory>
 #include <vector>
 #include <string>
@@ -11,6 +14,7 @@ namespace GhostGame::Framework
 {
     class Shader;
     class Material;
+    class Engine;
 
     namespace RenderPasses
     {
@@ -21,9 +25,9 @@ namespace GhostGame::Framework
 
             namespace Uniforms
             {
-                constexpr char modelMatrix[] = "model";
-                constexpr char viewMatrix[] = "view";
-                constexpr char projectionMatrix[] = "projection";
+                constexpr char model[] = "model";
+                constexpr char view[] = "view";
+                constexpr char projection[] = "projection";
                 constexpr char texture_diffuse1[] = "texture_diffuse1";
                 constexpr char texture_specular1[] = "texture_specular1";
             }
@@ -75,6 +79,23 @@ namespace GhostGame::Framework
         }
     }
 
+    class GHOSTGAME_FRAMEWORK_API GBuffer {
+    public:
+        unsigned int gBuffer = 0;
+        unsigned int gPosition = 0, gNormal = 0, gAlbedoSpec = 0;
+        unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+        unsigned int rboDepth = 0;
+
+        int screenWidth = 0;
+        int screenHeight = 0;
+        
+        GBuffer();
+        ~GBuffer();
+        GBuffer(GBuffer&&) = default;
+        GBuffer(const GBuffer&) = delete;
+        GBuffer& operator=(const GBuffer&) = delete;
+    };
+
 
     class GHOSTGAME_FRAMEWORK_API RenderPass {        
     public:
@@ -97,7 +118,8 @@ namespace GhostGame::Framework
 
     class GHOSTGAME_FRAMEWORK_API Renderer {
 
-    public:
+    public:        
+        std::unique_ptr<GBuffer> gbuffer;
         std::unique_ptr<RenderPass> geometryRenderPass;
         std::unique_ptr<RenderPass> lightingRenderPass;
         std::unique_ptr<RenderPass> postprocessRenderPass;
@@ -109,8 +131,9 @@ namespace GhostGame::Framework
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
 
-        void render();
-
-        
+        void render(Engine& engine, float deltaTime);
+    
+    private:
+        void drawQuad(Engine& engine);
     };
 }

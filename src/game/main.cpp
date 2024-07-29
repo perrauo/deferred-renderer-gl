@@ -13,9 +13,12 @@ int main()
 
     // Create an instance of the Engine class    
     Engine engine;
-    engine.launch();
+    
+    // Just opens the window
+    engine.setup();
 
     auto renderer = std::make_unique<Renderer>();
+    renderer->gbuffer = std::make_unique<GBuffer>();
     renderer->geometryRenderPass = std::make_unique<RenderPass>(RenderPasses::Geometry::name, RES("framework/shaders/geometry"));
     renderer->lightingRenderPass = std::make_unique<RenderPass>(RenderPasses::Lighting::name, RES("framework/shaders/lighting"));
     renderer->postprocessRenderPass = std::make_unique<RenderPass>(RenderPasses::Postprocess::name, RES("framework/shaders/postprocess"));

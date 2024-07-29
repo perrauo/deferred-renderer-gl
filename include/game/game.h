@@ -33,14 +33,7 @@ namespace GhostGame
 
         float _enemySpawnFrequency = -1;
 
-    public:
-        
-        // Pseudo ECS
-
-        PlayerComponent player;
-        Framework::CameraComponent camera;
-
-        // Enemies  
+    public:        
 
         Game() = default;
 
@@ -50,7 +43,7 @@ namespace GhostGame
 
         void update(Framework::Engine& engine, float deltaTime) override;
 
-        void render(Framework::Engine& engine) override;
+        void draw(Framework::Engine& engine, float deltaTime) override;
     };
 }
 

@@ -21,5 +21,6 @@ namespace GhostGame
 
         void start(Framework::Engine& engine, Framework::Entity& entity) override;
         void update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime) override;
+        void draw(Framework::Engine& engine, Framework::Entity& entity, float deltaTime) override;
     };
 }

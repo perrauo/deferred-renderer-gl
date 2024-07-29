@@ -15,4 +15,8 @@ namespace GhostGame
     void EnemyComponent::update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime)
     {
     }
+
+    void EnemyComponent::draw(Framework::Engine& engine, Framework::Entity& entity, float deltaTime)
+    {
+    }
 }

@@ -1,4 +1,21 @@
 {
-    "windowWidth": 1280,
-    "windowHeight": 720
+    "screenWidth": 1280,
+    "screenHeight": 720,
+    "Camera": {
+        "pitch": 0.0,
+        "yaw": 0.0,
+        "roll": 0.0,
+        "fov": 45.0,
+        "aspectRatio": 1.333,
+        "nearClip": 0.1,
+        "farClip": 100.0
+    },
+    "PointLight": {
+        "color": {
+            "r": 255,
+            "g": 255,
+            "b": 255
+        },
+        "intensity": 1.0
+    }
 }

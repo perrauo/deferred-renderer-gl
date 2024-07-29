@@ -13,6 +13,11 @@
 
 namespace GhostGame::Framework
 {    
+    namespace Math
+    {
+        constexpr glm::mat4 Identity4x4 = glm::mat4(1.0f);
+    }
+
     class GHOSTGAME_FRAMEWORK_API Transform {
     public:
         glm::vec3 position;

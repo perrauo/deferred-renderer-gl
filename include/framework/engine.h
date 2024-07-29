@@ -4,10 +4,17 @@
 #include "framework/entity.h"
 #include "framework/renderer.h"
 #include "framework/material.h"
+#include "framework/game.h"
+#include "framework/math.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include "glm/gtc/quaternion.hpp"
+#include "glm/mat4x4.hpp"
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
 
 #include <memory>
 #include <unordered_map>
@@ -22,7 +29,6 @@
 namespace GhostGame::Framework
 {
     using EntityId = int;
-    class IGame;
 
     class GHOSTGAME_FRAMEWORK_API Engine {
     private:
@@ -33,27 +39,37 @@ namespace GhostGame::Framework
 
         EntityId _nextEntityId = 0;
 
+        void update();
+
     public:
 
         GLFWwindow* window = nullptr;
+        int screenHeight = 0;
+        int screenWidth = 0;
+
+        glm::mat4 viewMatrix = Math::Identity4x4;
+        glm::mat4 projectionMatrix = Math::Identity4x4;
 
         std::unique_ptr<Renderer> renderer;
         std::unique_ptr<IGame> game;
+        std::unique_ptr<Material> pointLightMaterial;
 
         Engine();
 
         Engine(const Engine&) = delete;
         Engine& operator=(const Engine&) = delete;
 
-        int launch();
+        int setup();
 
         void loop();
 
-        void startGame(std::unique_ptr<IGame>&& game);
+        // TODO: remove level of indirection. renderer should not call upon engine.drawEntities
+        // Maybe use a lambda?
+        void drawEntities(float deltaTime);
 
-        void processInput();
+        void drawLights(float deltaTime);
 
-        void update();
+        void startGame(std::unique_ptr<IGame>&& game); 
 
         void stop();
 

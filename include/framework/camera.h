@@ -15,8 +15,6 @@ namespace GhostGame::Framework
    
     class GHOSTGAME_FRAMEWORK_API CameraComponent : public Component {
     public:
-        glm::mat4 viewMatrix;
-        glm::mat4 projectionMatrix;
 
         float pitch = 0.0f; // Up and down
         float yaw = 0.0f;   // Left and right
@@ -31,5 +29,6 @@ namespace GhostGame::Framework
 
         void start(Framework::Engine& engine, Framework::Entity& entity);
         void update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime) override;
+        void draw(Framework::Engine& engine, Framework::Entity& entity, float deltaTime) override;
     };
 }

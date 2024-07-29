@@ -93,7 +93,7 @@ namespace GhostGame
         }
     }
 
-    void Game::render(Framework::Engine& engine)
+    void Game::draw(Framework::Engine& engine, float deltaTime)
     {
     }
 }
