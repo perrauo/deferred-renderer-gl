@@ -17,63 +17,23 @@ namespace GhostGame::Framework
     class Material;
     class Engine;
 
-    namespace RenderPasses
+    namespace DeferredShading
     {
+        constexpr int numGBufferTextures = 3;
 
-        namespace Geometry
+        namespace Slots
         {
-            constexpr char name[] = NAMEOF(Geometry);
-
-            namespace Uniforms
-            {
-                constexpr char textureDiffuse[] = "textureDiffuse";
-                constexpr char textureSpecular[] = "textureSpecular";
-            }
-
-            namespace Attributes
-            {
-                constexpr char aPos[] = "aPos";
-                constexpr char aNormal[] = "aNormal";
-                constexpr char aTexCoords[] = "aTexCoords";
-            }
-
-            namespace Out
-            {
-                constexpr char gPosition[] = "gPosition";
-                constexpr char gNormal[] = "gNormal";
-                constexpr char gAlbedoSpec[] = "gAlbedoSpec";
-            }
+            // Coresponds to GL_TEXTURE0..etc
+            constexpr int gPosition = 0;
+            constexpr int gNormal = 1;
+            constexpr int gAlbedo = 2;
         }
 
-
-        namespace Lighting
+        namespace Uniforms
         {
-            constexpr char name[] = NAMEOF(Lighting);
-
-            namespace Uniforms
-            {
-                constexpr char gPosition[] = "gPosition";
-                constexpr char gNormal[] = "gNormal";
-                constexpr char gAlbedoSpec[] = "gAlbedoSpec";
-                constexpr char lightPos[] = "lightPos";
-                constexpr char viewPos[] = "viewPos";
-                constexpr char lightColor[] = "lightColor";
-            }
-        }
-
-        namespace Postprocess
-        {
-            constexpr char name[] = NAMEOF(Postprocess);
-
-            namespace Uniforms
-            {
-                constexpr char screenTexture[] = "screenTexture";
-            }
-        }
-
-        namespace Transparent
-        {
-            constexpr char name[] = NAMEOF(Transparent);
+            constexpr char gPosition[] = "gPosition";
+            constexpr char gNormal[] = "gNormal";
+            constexpr char gAlbedo[] = "gAlbedo";
         }
     }
 

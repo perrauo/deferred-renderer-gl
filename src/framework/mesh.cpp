@@ -145,6 +145,9 @@ namespace GhostGame::Framework
             geomMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
             geomMaterial->setUniform(Uniforms::view, engine.viewMatrix);
             geomMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
+            geomMaterial->setUniform(DeferredShading::Uniforms::gPosition, DeferredShading::Slots::gPosition);
+            geomMaterial->setUniform(DeferredShading::Uniforms::gNormal, DeferredShading::Slots::gNormal);
+            geomMaterial->setUniform(DeferredShading::Uniforms::gAlbedo, DeferredShading::Slots::gAlbedo);
             geomMaterial->bind(engine);
             
             // Bind the VAO of the mesh and draw it

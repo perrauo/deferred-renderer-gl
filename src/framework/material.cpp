@@ -2,6 +2,7 @@
 #include "framework/texture.h"
 #include "framework/utils.h"
 #include "framework/engine.h"
+#include "framework/renderer.h"
 
 #include <iostream>
 #include <fstream>
@@ -279,7 +280,8 @@ namespace GhostGame::Framework
             }
 
             // Set the texture uniforms
-            int textureUnit = 0;
+            using namespace DeferredShading;
+            int textureUnit = numGBufferTextures;
             for (const auto& textureUniform : _textureUniforms) {
                 if (auto texture = textureUniform.second) {
                     texture->bind(textureUnit);

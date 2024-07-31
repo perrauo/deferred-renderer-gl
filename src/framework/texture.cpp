@@ -1,4 +1,5 @@
 #include "framework/texture.h"
+#include "framework/renderer.h"
 
 #include "stb_image.h"
 #include "gli/gli.hpp"
@@ -13,6 +14,9 @@ namespace GhostGame::Framework
     // -------------------
     // Texture
     // -------------------
+    
+    // TODO:
+    // Modern applications don't use all 32 slots. We should improve this
 
     Texture::Texture(const std::string& path, GLenum textureTarget)
         : _path(path)
@@ -68,8 +72,11 @@ namespace GhostGame::Framework
     }
 
     void Texture::bind(GLuint unit) const {
-        // GL_TEXTURE0 reserved by the deferred renderer
-        glActiveTexture(GL_TEXTURE1 + unit);
+
+        using namespace DeferredShading;
+
+        // GL_TEXTURE0 reserved by the deferred renderer. So let's use the texture slots afterward
+        glActiveTexture(GL_TEXTURE0 + numGBufferTextures + unit);
         glBindTexture(_textureTarget, _textureID);
     }
 }
