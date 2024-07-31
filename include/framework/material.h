@@ -18,6 +18,7 @@ namespace GhostGame::Framework
 {
     class Texture;
     class Engine;
+    enum class GBufferSlot : int;
 
     namespace Materials
     {
@@ -122,6 +123,8 @@ namespace GhostGame::Framework
 
         void setUniform(const std::string& name, int value);
 
+        void setUniform(const std::string& name, GBufferSlot value);
+
         void setUniform(const std::string& name, const glm::vec2& value);
 
         void setUniform(const std::string& name, const glm::vec3& value);
@@ -150,6 +153,8 @@ namespace GhostGame::Framework
         void setUniform(const std::string& name, float value);
 
         void setUniform(const std::string& name, int value);
+
+        void setUniform(const std::string& name, GBufferSlot value);
 
         void setUniform(const std::string& name, const glm::vec2& value);
 

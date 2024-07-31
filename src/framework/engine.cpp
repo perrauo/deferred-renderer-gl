@@ -56,8 +56,13 @@ namespace GhostGame::Framework
             return -1;
         }
 
-        // Create a windowed mode window and its OpenGL context
+        // Set GLFW window hints for OpenGL core profile
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // Request OpenGL version 4.x
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); // Request OpenGL version 4.6
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Request core profile
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Make MacOS happy
 
+        // Create a windowed mode window and its OpenGL context
         screenSize.x = config.at("screenWidth").as_int64();
         screenSize.y = config.at("screenHeight").as_int64();
 
@@ -92,7 +97,6 @@ namespace GhostGame::Framework
         else {
             std::cout << "Failed to get OpenGL version." << std::endl;
         }
-
 
         // Capture the mouse cursor
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -217,9 +221,9 @@ namespace GhostGame::Framework
         // Blit the GBuffer to the default framebuffer
         gbuffer->blitToDefaultFramebuffer();
 
-        finalPassMaterial->setUniform(Uniforms::gPosition, Slots::gPosition);
-        finalPassMaterial->setUniform(Uniforms::gNormal, Slots::gNormal);
-        finalPassMaterial->setUniform(Uniforms::gAlbedo, Slots::gAlbedo);
+        finalPassMaterial->setUniform(Uniforms::gPosition, GBufferSlot::gPosition);
+        finalPassMaterial->setUniform(Uniforms::gNormal, GBufferSlot::gNormal);
+        finalPassMaterial->setUniform(Uniforms::gAlbedo, GBufferSlot::gAlbedo);
         finalPassMaterial->bind(*this);
 
         // Draw the quad

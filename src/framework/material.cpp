@@ -155,6 +155,15 @@ namespace GhostGame::Framework
         }
     }
 
+    void Material::setUniform(const std::string& name, GBufferSlot value)
+    {
+        GLuint location = glGetUniformLocation(_programId, name.c_str());
+        if (location != -1)
+        {
+            glUniform1i(location, (int)value);
+        }
+    }
+
     void Material::setUniform(const std::string& name, const glm::vec2& value)
     {
         GLuint location = glGetUniformLocation(_programId, name.c_str());
@@ -221,6 +230,11 @@ namespace GhostGame::Framework
     void MaterialInstance::setUniform(const std::string& name, int value)
     {
         _intUniforms[name] = value;
+    }
+
+    void MaterialInstance::setUniform(const std::string& name, GBufferSlot value)
+    {
+        _intUniforms[name] = (int)value;
     }
 
     void MaterialInstance::setUniform(const std::string& name, const std::shared_ptr<Texture>& texture)

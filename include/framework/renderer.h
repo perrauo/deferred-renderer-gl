@@ -26,14 +26,6 @@ namespace GhostGame::Framework
             constexpr char name[] = NAMEOF(FinalPass);
         }
 
-        namespace Slots
-        {
-            // Coresponds to GL_TEXTURE0..etc
-            constexpr int gPosition = 0;
-            constexpr int gNormal = 1;
-            constexpr int gAlbedo = 2;
-        }
-
         namespace Uniforms
         {
             constexpr char gPosition[] = "gPosition";
@@ -41,6 +33,14 @@ namespace GhostGame::Framework
             constexpr char gAlbedo[] = "gAlbedo";
         }
     }
+
+    enum class GBufferSlot : int
+    {
+        // Coresponds to GL_TEXTURE0..etc
+        gPosition,
+        gNormal,
+        gAlbedo
+    };
 
     class GHOSTGAME_FRAMEWORK_API GBuffer {
     
@@ -50,14 +50,14 @@ namespace GhostGame::Framework
     
     public:
         unsigned int gBuffer = 0;
-        unsigned int gPosition = 0, gNormal = 0, gAlbedoSpec = 0;
+        unsigned int gPosition = 0, gNormal = 0, gAlbedo = 0;
         unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
         unsigned int rboDepth = 0;
 
         int screenWidth = 0;
         int screenHeight = 0;
         
-        GBuffer(int screenWidth, int screenHight);
+        GBuffer(int screenWidth, int screenHeight);
         ~GBuffer();
         GBuffer(GBuffer&&) = default;
         GBuffer(const GBuffer&) = delete;

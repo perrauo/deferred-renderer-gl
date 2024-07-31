@@ -45,10 +45,6 @@ namespace GhostGame::Framework
         glEnableVertexAttribArray(1); // Normals
         glEnableVertexAttribArray(2); // UVs
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
-        glBindVertexArray(0);
     }
 
     void Mesh::unload()
@@ -145,9 +141,9 @@ namespace GhostGame::Framework
             geomMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
             geomMaterial->setUniform(Uniforms::view, engine.viewMatrix);
             geomMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
-            geomMaterial->setUniform(DeferredShading::Uniforms::gPosition, DeferredShading::Slots::gPosition);
-            geomMaterial->setUniform(DeferredShading::Uniforms::gNormal, DeferredShading::Slots::gNormal);
-            geomMaterial->setUniform(DeferredShading::Uniforms::gAlbedo, DeferredShading::Slots::gAlbedo);
+            geomMaterial->setUniform(DeferredShading::Uniforms::gPosition, GBufferSlot::gPosition);
+            geomMaterial->setUniform(DeferredShading::Uniforms::gNormal, GBufferSlot::gNormal);
+            geomMaterial->setUniform(DeferredShading::Uniforms::gAlbedo, GBufferSlot::gAlbedo);
             geomMaterial->bind(engine);
             
             // Bind the VAO of the mesh and draw it

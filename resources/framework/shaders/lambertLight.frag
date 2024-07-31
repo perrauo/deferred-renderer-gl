@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 
 in vec2 outUv;
 
@@ -20,8 +20,8 @@ void main()
     vec3 Albedo = texture(gAlbedo, outUv).rgb;
 
     // calculate lighting
-    float distance = length(position - FragPos);
-    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
+    float dist = length(position - FragPos);
+    float attenuation = 1.0 / (1.0 + 0.09 * dist + 0.032 * (dist * dist));
     vec3 diffuse = max(dot(Normal, normalize(position - FragPos)), 0.0) * Albedo * lightColor;
 
     FragColor = vec4(diffuse * lightIntensity * attenuation, 1.0);

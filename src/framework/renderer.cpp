@@ -52,7 +52,7 @@ namespace GhostGame::Framework
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, gNormal);
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+            glBindTexture(GL_TEXTURE_2D, gAlbedo);
 
             _areTexturesBound = true;
         }
@@ -67,7 +67,7 @@ namespace GhostGame::Framework
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, 0); // Unbind gNormal
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gAlbedoSpec
+            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gAlbedo
 
             _areTexturesBound = false;
         }
@@ -95,12 +95,12 @@ namespace GhostGame::Framework
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
             // - color + specular color buffer
-            glGenTextures(1, &gAlbedoSpec);
-            glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+            glGenTextures(1, &gAlbedo);
+            glBindTexture(GL_TEXTURE_2D, gAlbedo);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedo, 0);
             // - tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
             glDrawBuffers(3, attachments);
             // - create and attach depth buffer (renderbuffer)
@@ -122,7 +122,7 @@ namespace GhostGame::Framework
         {
             glDeleteTextures(1, &gPosition);
             glDeleteTextures(1, &gNormal);
-            glDeleteTextures(1, &gAlbedoSpec);
+            glDeleteTextures(1, &gAlbedo);
             glDeleteRenderbuffers(1, &rboDepth);
             glDeleteFramebuffers(1, &gBuffer);
 
