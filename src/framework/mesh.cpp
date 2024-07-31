@@ -182,10 +182,9 @@ namespace GhostGame::Framework
             glPushMatrix();
             glMultMatrixf(glTransform);
 
+            lightMaterial->setUniform(Uniforms::position, entity.transform.position);
             geomMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
             // TODO: rename light position
-            lightMaterial->setUniform(Uniforms::position, entity.transform.position);
-            lightMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
             lightMaterial->setUniform(Uniforms::view, engine.viewMatrix);
             lightMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
             lightMaterial->bind(engine);

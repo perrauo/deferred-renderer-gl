@@ -133,6 +133,7 @@ namespace GhostGame::Framework
         pointLightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
         lambertGeomMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertGeom"));
         lambertLightMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertLight"));
+        finalPassMaterial = std::make_unique<Material>(DeferredShading::FinalPass::name, RES("framework/shaders/finalPass"));
         return 0;
     }
 
@@ -190,12 +191,10 @@ namespace GhostGame::Framework
 
     void Engine::draw(float deltaTime)
     {
-        //testDraw(deltaTime);       
+        using namespace DeferredShading;
 
         // Bind the GBuffer
         gbuffer->bind();
-        // Bind the GBuffer textures
-        gbuffer->bindTextures();
 
         // Clear the color and depth buffers
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -206,17 +205,31 @@ namespace GhostGame::Framework
         // Unbind the GBuffer
         gbuffer->unbind();
 
+        // Bind the GBuffer textures
+        gbuffer->bindTextures();
+
         // Draw the lights
         drawLights(deltaTime);
 
+        // Unbind the GBuffer textures
+        gbuffer->unbindTextures();
+
+        // Blit the GBuffer to the default framebuffer
         gbuffer->blitToDefaultFramebuffer();
 
-        gbuffer->bindForFinalPass();
+        finalPassMaterial->setUniform(Uniforms::gPosition, Slots::gPosition);
+        finalPassMaterial->setUniform(Uniforms::gNormal, Slots::gNormal);
+        finalPassMaterial->setUniform(Uniforms::gAlbedo, Slots::gAlbedo);
+        finalPassMaterial->bind(*this);
 
+        // Draw the quad
         gbuffer->drawQuad();
 
-        gbuffer->unbindTextures();
+        finalPassMaterial->unbind(*this);
     }
+
+
+
 
     void Engine::update(float deltaTime) {
 

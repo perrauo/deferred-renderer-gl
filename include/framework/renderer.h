@@ -21,6 +21,11 @@ namespace GhostGame::Framework
     {
         constexpr int numGBufferTextures = 3;
 
+        namespace FinalPass
+        {
+            constexpr char name[] = NAMEOF(FinalPass);
+        }
+
         namespace Slots
         {
             // Coresponds to GL_TEXTURE0..etc
@@ -65,7 +70,6 @@ namespace GhostGame::Framework
         void init();
         void deinit();
         void blitToDefaultFramebuffer();
-        void bindForFinalPass();
         void drawQuad();
     };
         

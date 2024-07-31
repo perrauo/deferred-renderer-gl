@@ -61,6 +61,7 @@ namespace GhostGame::Framework
         std::shared_ptr<Material> pointLightMaterial;
         std::shared_ptr<Material> lambertGeomMaterial;
         std::shared_ptr<Material> lambertLightMaterial;
+        std::shared_ptr<Material> finalPassMaterial;
         boost::json::value config;
 
         Engine();
