@@ -5,6 +5,7 @@ out vec4 FragColor;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedo;
+
 void main()
 {
     vec3 FragPos = texture(gPosition, TexCoords).rgb;

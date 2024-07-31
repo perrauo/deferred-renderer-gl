@@ -1,6 +1,7 @@
 #version 460 core
 
 layout (location = 0) in vec3 aPos;
+out vec2 TexCoords;
 
 uniform mat4 model;
 uniform mat4 view;
