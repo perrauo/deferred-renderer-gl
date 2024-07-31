@@ -191,7 +191,7 @@ namespace GhostGame::Framework
     private:
         std::shared_ptr<Material> _material;
         std::unordered_map<std::string, std::shared_ptr<Texture>> _textureUniforms;
-        std::unordered_map<std::string, float> _intUniforms;
+        std::unordered_map<std::string, int> _intUniforms;
         std::unordered_map<std::string, float> _floatUniforms;
         std::unordered_map<std::string, glm::vec2> _vec2Uniforms;
         std::unordered_map<std::string, glm::vec3> _vec3Uniforms;

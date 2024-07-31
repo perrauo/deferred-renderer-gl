@@ -215,9 +215,6 @@ namespace GhostGame::Framework
         // Draw the lights
         drawLights(deltaTime);
 
-        // Unbind the GBuffer textures
-        gbuffer->unbindTextures();
-
         // Blit the GBuffer to the default framebuffer
         gbuffer->blitToDefaultFramebuffer();
 
@@ -230,6 +227,9 @@ namespace GhostGame::Framework
         gbuffer->drawQuad();
 
         finalPassMaterial->unbind(*this);
+
+        // Unbind the GBuffer textures
+        gbuffer->unbindTextures();
     }
 
 

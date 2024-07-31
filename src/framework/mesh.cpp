@@ -152,19 +152,8 @@ namespace GhostGame::Framework
             )
         {
             // Get the transformation matrix from the entity
-            glm::mat4 transform = entity.transform.getMatrix();
-
-            // Convert the transformation matrix to a format that OpenGL can use
-            GLfloat glTransform[16];
-            const float* transformData = glm::value_ptr(transform);
-            std::copy(transformData, transformData + 16, glTransform);
-
-            // Apply the transformation
-            glPushMatrix();
-            glMultMatrixf(glTransform);
-
             lightMaterial->setUniform(Uniforms::position, entity.transform.position);
-            geomMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
+            lightMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
             // TODO: rename light position
             lightMaterial->setUniform(Uniforms::view, engine.viewMatrix);
             lightMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
@@ -174,9 +163,6 @@ namespace GhostGame::Framework
             mesh->draw();
 
             lightMaterial->unbind(engine);
-
-            // Restore the previous model view matrix
-            glPopMatrix();
         }
     }
 
