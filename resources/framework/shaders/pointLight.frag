@@ -1,6 +1,6 @@
 #version 460 core
 
-in vec2 TexCoords;
+layout (location = 1) in vec2 fragUv;
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
@@ -10,19 +10,19 @@ uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform float lightIntensity;
 
-out vec4 FragColor;
+out vec4 outFragColor;
 
 void main()
 {
     // retrieve data from gbuffer
-    vec3 FragPos = texture(gPosition, TexCoords).rgb;
-    vec3 Normal = texture(gNormal, TexCoords).rgb;
-    vec3 Albedo = texture(gAlbedo, TexCoords).rgb;
+    vec3 fragPos = texture(gPosition, fragUv).rgb;
+    vec3 normal = texture(gNormal, fragUv).rgb;
+    vec3 albedo = texture(gAlbedo, fragUv).rgb;
 
     // calculate lighting
-    float distance = length(lightPos - FragPos);
-    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
-    vec3 diffuse = max(dot(Normal, lightPos - FragPos), 0.0) * Albedo * lightColor;
+    float dist = length(lightPos - fragPos);
+    float attenuation = 1.0 / (1.0 + 0.09 * dist + 0.032 * (dist * dist));
+    vec3 diffuse = max(dot(normal, lightPos - fragPos), 0.0) * albedo * lightColor;
 
-    FragColor = vec4(diffuse * lightIntensity * attenuation, 1.0);
+    outFragColor = vec4(diffuse * lightIntensity * attenuation, 1.0);
 }

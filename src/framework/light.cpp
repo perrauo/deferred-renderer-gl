@@ -29,16 +29,15 @@ namespace GhostGame::Framework
     void PointLightComponent::drawLight(Engine& engine, Entity& entity, float deltaTime)
     {
         using namespace Lights;
-        using namespace Materials;
 
         lightMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
         lightMaterial->setUniform(Uniforms::view, engine.viewMatrix);
         lightMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
 
         lightMaterial->setUniform(Materials::Uniforms::screenSize, engine.screenSize);
-        lightMaterial->setUniform(PointLight::Uniforms::lightColor, color);
-        lightMaterial->setUniform(PointLight::Uniforms::lightIntensity, intensity);
-        lightMaterial->setUniform(PointLight::Uniforms::lightPos, entity.transform.getMatrix());
+        lightMaterial->setUniform(Lights::Uniforms::lightColor, color);
+        lightMaterial->setUniform(Lights::Uniforms::lightIntensity, intensity);
+        lightMaterial->setUniform(Lights::Uniforms::lightPos, entity.transform.getMatrix());
         lightMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
 
         lightMaterial->bind(engine);

@@ -155,7 +155,7 @@ namespace GhostGame::Framework
         }
     }
 
-    void Material::setUniform(const std::string& name, GBufferSlot value)
+    void Material::setUniform(const std::string& name, ReservedTextureSlot value)
     {
         GLuint location = glGetUniformLocation(_programId, name.c_str());
         if (location != -1)
@@ -232,7 +232,7 @@ namespace GhostGame::Framework
         _intUniforms[name] = value;
     }
 
-    void MaterialInstance::setUniform(const std::string& name, GBufferSlot value)
+    void MaterialInstance::setUniform(const std::string& name, ReservedTextureSlot value)
     {
         _intUniforms[name] = (int)value;
     }
@@ -295,7 +295,7 @@ namespace GhostGame::Framework
 
             // Set the texture uniforms
             using namespace DeferredShading;
-            int textureUnit = numGBufferTextures;
+            int textureUnit = numTexturesReserved;
             for (const auto& textureUniform : _textureUniforms) {
                 if (auto texture = textureUniform.second) {
                     texture->bind(textureUnit);

@@ -3,6 +3,7 @@
 #include "framework/material.h"
 #include "framework/renderer.h"
 #include "framework/engine.h"
+#include "framework/light.h"
 
 #include <vector>
 #include <iostream>
@@ -129,9 +130,6 @@ namespace GhostGame::Framework
             geomMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
             geomMaterial->setUniform(Uniforms::view, engine.viewMatrix);
             geomMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
-            geomMaterial->setUniform(DeferredShading::Uniforms::gPosition, GBufferSlot::gPosition);
-            geomMaterial->setUniform(DeferredShading::Uniforms::gNormal, GBufferSlot::gNormal);
-            geomMaterial->setUniform(DeferredShading::Uniforms::gAlbedo, GBufferSlot::gAlbedo);
             geomMaterial->bind(engine);
             
             // Bind the VAO of the mesh and draw it
@@ -152,7 +150,7 @@ namespace GhostGame::Framework
             )
         {
             // Get the transformation matrix from the entity
-            lightMaterial->setUniform(Uniforms::position, entity.transform.position);
+            lightMaterial->setUniform(Lights::Uniforms::lightPos, entity.transform.position);
             lightMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
             // TODO: rename light position
             lightMaterial->setUniform(Uniforms::view, engine.viewMatrix);

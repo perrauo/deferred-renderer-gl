@@ -10,24 +10,19 @@ namespace GhostGame::Framework
 {
     namespace Lights
     {
+        namespace Uniforms
+        {
+            constexpr char model[] = "model";
+            constexpr char view[] = "view";
+            constexpr char projection[] = "projection";
+            constexpr char lightPos[] = "lightPos";
+            constexpr char lightColor[] = "lightColor";
+            constexpr char lightIntensity[] = "lightIntensity";
+        }
+
         namespace PointLight
         {
             constexpr char name[] = NAMEOF(PointLight);
-
-            namespace Uniforms
-            {
-                constexpr char model[] = "model";
-                constexpr char view[] = "view";
-                constexpr char projection[] = "projection";
-                constexpr char lightPos[] = "lightPos";
-                constexpr char lightColor[] = "lightColor";
-                constexpr char lightIntensity[] = "intensity";
-            }
-
-            namespace Out
-            {
-                constexpr char FragColor[] = "FragColor ";
-            }
         }
     }
 

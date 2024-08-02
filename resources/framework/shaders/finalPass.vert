@@ -1,10 +1,12 @@
 #version 460 core
 
-layout (location = 0) in vec2 aPos;
-out vec2 TexCoords;
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec2 uv;
+
+layout(location = 2) out vec2  fragUv;
 
 void main()
 {
-    TexCoords = (aPos + 1.0) / 2.0;
-    gl_Position = vec4(aPos, 0.0, 1.0);
+    gl_Position = vec4(position, 1.0);
+    fragUv = uv;
 }

@@ -15,6 +15,7 @@
 #include "glm/mat4x4.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
+#include "glm/vec2.hpp"
 
 #include <memory>
 #include <unordered_map>
@@ -50,7 +51,7 @@ namespace GhostGame::Framework
     public:
 
         GLFWwindow* window = nullptr;
-        glm::vec2 screenSize = { 0, 0 };
+        glm::ivec2 screenSize = { 0, 0 };
         glm::mat4 viewMatrix = Math::Identity4x4;
         glm::mat4 projectionMatrix = Math::Identity4x4;
         // TODO separate in a renderer class

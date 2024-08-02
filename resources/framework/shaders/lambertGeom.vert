@@ -1,22 +1,24 @@
 #version 460 core
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec2 aUv;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 uv;
 
-out vec2 outUv;
-out vec3 outNormal;
-out vec3 outFragPos;
+layout (location = 3) out vec2 fragUv;
+layout (location = 4) out vec3 fragNormal;
+layout (location = 5) out vec3 fragPos;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform sampler2D diffuseTexture;
+
 
 void main()
 {
-    outFragPos = vec3(model * vec4(aPos, 1.0));
-    outNormal = mat3(transpose(inverse(model))) * aNormal;  
-    outUv = aUv;
+    fragPos = vec3(model * vec4(position, 1.0));
+    fragNormal = mat3(transpose(inverse(model))) * normal;  
+    fragUv = uv;
     
-    gl_Position = projection * view * vec4(aPos, 1.0);
+    gl_Position = projection * view * vec4(position, 1.0);
 }

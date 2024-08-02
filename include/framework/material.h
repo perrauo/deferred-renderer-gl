@@ -18,7 +18,7 @@ namespace GhostGame::Framework
 {
     class Texture;
     class Engine;
-    enum class GBufferSlot : int;
+    enum class ReservedTextureSlot : int;
 
     namespace Materials
     {
@@ -58,6 +58,7 @@ namespace GhostGame::Framework
                 constexpr char diffuseColor[] = "diffuseColor";
                 constexpr char lightDirection[] = "lightDirection";
                 constexpr char lightColor[] = "lightColor";
+                constexpr char lightPos[] = "lightPos";
                 constexpr char lightIntensity[] = "lightIntensity";
                 constexpr char textureDiffuse[] = "textureDiffuse";
             }
@@ -123,7 +124,7 @@ namespace GhostGame::Framework
 
         void setUniform(const std::string& name, int value);
 
-        void setUniform(const std::string& name, GBufferSlot value);
+        void setUniform(const std::string& name, ReservedTextureSlot value);
 
         void setUniform(const std::string& name, const glm::vec2& value);
 
@@ -154,7 +155,7 @@ namespace GhostGame::Framework
 
         void setUniform(const std::string& name, int value);
 
-        void setUniform(const std::string& name, GBufferSlot value);
+        void setUniform(const std::string& name, ReservedTextureSlot value);
 
         void setUniform(const std::string& name, const glm::vec2& value);
 

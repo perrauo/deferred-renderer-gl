@@ -76,7 +76,7 @@ namespace GhostGame::Framework
         using namespace DeferredShading;
 
         // GL_TEXTURE0 reserved by the deferred renderer. So let's use the texture slots afterward
-        glActiveTexture(GL_TEXTURE0 + numGBufferTextures + unit);
+        glActiveTexture(GL_TEXTURE0 + numTexturesReserved + unit);
         glBindTexture(_textureTarget, _textureID);
     }
 }

@@ -19,7 +19,7 @@ namespace GhostGame::Framework
 
     namespace DeferredShading
     {
-        constexpr int numGBufferTextures = 3;
+        constexpr int numTexturesReserved = 4;
 
         namespace FinalPass
         {
@@ -28,15 +28,16 @@ namespace GhostGame::Framework
 
         namespace Uniforms
         {
+            constexpr char screenTexture[] = "screenTexture";
             constexpr char gPosition[] = "gPosition";
             constexpr char gNormal[] = "gNormal";
             constexpr char gAlbedo[] = "gAlbedo";
         }
     }
 
-    enum class GBufferSlot : int
+    enum class ReservedTextureSlot : int
     {
-        // Coresponds to GL_TEXTURE0..etc
+        ScreenTexture, // Corresponds to GL_TEXTURE0..etc
         gPosition,
         gNormal,
         gAlbedo
@@ -49,7 +50,7 @@ namespace GhostGame::Framework
         bool _isInit = false;
     
     public:
-        unsigned int gBuffer = 0;
+        unsigned int frameBuffer = 0;
         unsigned int gPosition = 0, gNormal = 0, gAlbedo = 0;
         unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
         unsigned int rboDepth = 0;
@@ -69,7 +70,7 @@ namespace GhostGame::Framework
         void unbindTextures();
         void init();
         void deinit();
-        void blitToDefaultFramebuffer();
+        //void blitToDefaultFramebuffer();
         void drawQuad();
     };
         
