@@ -200,21 +200,13 @@ namespace Experiment::Framework
         }
     }
 
-    void Material::bind(Engine& engine)
+    void Material::bind()
     {
         glUseProgram(_programId);
-        engine.programStack.push(_programId);
     }
 
-    void Material::unbind(Engine& engine)
-    {        
-        if (GLuint previousShaderId = engine.programStack.top())
-        {
-            engine.programStack.pop();
-            previousShaderId = engine.programStack.top();
-            glUseProgram(previousShaderId);
-            return;
-        }       
+    void Material::unbind()
+    {
         glUseProgram(0);
     }
 
@@ -262,19 +254,19 @@ namespace Experiment::Framework
         _mat4Uniforms[name] = value;
     }
 
-    void MaterialInstance::unbind(Engine& engine)
+    void MaterialInstance::unbind()
     {
         if (auto material = _material)
         {
-            material->unbind(engine);
+            material->unbind();
         }
     }
 
-    void MaterialInstance::bind(Engine& engine)
+    void MaterialInstance::bind()
     {        
         if (auto material = _material)
         {
-            material->bind(engine);
+            material->bind();
 
             // Set the uniforms
             for (const auto& uniform : _floatUniforms) {

@@ -2,9 +2,12 @@
 
 #include "framework/api.h"
 #include "framework/utils.h"
+#include "framework/material.h"
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
+
+#include <glm/vec2.hpp>
 
 #include <memory>
 #include <vector>
@@ -14,7 +17,6 @@
 namespace Experiment::Framework
 {
     class Shader;
-    class Material;
     class Engine;
 
     namespace DeferredShading
@@ -32,6 +34,7 @@ namespace Experiment::Framework
             constexpr char gPosition[] = "gPosition";
             constexpr char gNormal[] = "gNormal";
             constexpr char gAlbedo[] = "gAlbedo";
+            constexpr char gMaterial[] = "gMaterial";
         }
     }
 
@@ -40,7 +43,8 @@ namespace Experiment::Framework
         ScreenTexture, // Corresponds to GL_TEXTURE0..etc
         gPosition,
         gNormal,
-        gAlbedo
+        gAlbedo,
+        gMaterial
     };
 
     namespace GBuffer
@@ -50,8 +54,8 @@ namespace Experiment::Framework
         class EXPERIMENT_FRAMEWORK_API Resource {
         public:
             unsigned int frameBuffer = 0;
-            unsigned int gPosition = 0, gNormal = 0, gAlbedo = 0;
-            unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+            unsigned int gPosition = 0, gNormal = 0, gAlbedo = 0, gMaterial = 0;
+            unsigned int attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
             unsigned int rboDepth = 0;
 
             glm::ivec2 dimensions;
@@ -64,12 +68,12 @@ namespace Experiment::Framework
             Resource& operator=(const Resource&) = delete;
         };
 
-        class EXPERIMENT_FRAMEWORK_API FramebufferBinding
+        class EXPERIMENT_FRAMEWORK_API FrameBufferBinding
         {
             const Resource* _resource = nullptr;
         public:
-            FramebufferBinding(const Resource* resource);
-            ~FramebufferBinding();
+            FrameBufferBinding(const Resource* resource);
+            ~FrameBufferBinding();
         };
 
         class EXPERIMENT_FRAMEWORK_API TextureBinding

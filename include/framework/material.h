@@ -28,6 +28,7 @@ namespace Experiment::Framework
             constexpr char model[] = "model";
             constexpr char view[] = "view";
             constexpr char projection[] = "projection";
+            constexpr char material[] = "material";
             constexpr char textureSampler[] = "textureSampler";
             constexpr char screenSize[] = "screenSize";
         }
@@ -81,9 +82,9 @@ namespace Experiment::Framework
     {
     public:
         
-        virtual void bind(Engine& engine) = 0;
+        virtual void bind() = 0;
 
-        virtual void unbind(Engine& engine) = 0;
+        virtual void unbind() = 0;
 
         virtual GLuint getProgramId() const = 0;
 
@@ -114,14 +115,16 @@ namespace Experiment::Framework
         /// <param name="shaderPath"></param>
         Material(const std::string& name, const std::string& shaderPath);
 
+        Material(Material&&) = default;
+
         Material(const Material&) = delete;
         Material& operator=(const Material&) = delete;
 
         ~Material();
 
-        void bind(Engine& engine) override;
+        void bind() override;
 
-        void unbind(Engine& engine) override;
+        void unbind() override;
 
         virtual std::string getName() const override { return _name; }
 
@@ -174,9 +177,9 @@ namespace Experiment::Framework
 
         void setUniform(const std::string& name, const std::shared_ptr<Texture>& value);
 
-        void bind(Engine& engine) override;
+        void bind() override;
 
-        void unbind(Engine& engine) override;
+        void unbind() override;
 
         GLuint getProgramId() const override
         {
@@ -207,4 +210,18 @@ namespace Experiment::Framework
         std::unordered_map<std::string, glm::mat4> _mat4Uniforms;
     };
 
+    class MaterialBinding
+    {
+        IMaterial* material = nullptr;
+    public:
+        MaterialBinding(IMaterial* material)
+        : material(material)
+        {
+            material->bind();
+        }
+        ~MaterialBinding()
+        {
+            material->unbind();
+        }
+    };
 }

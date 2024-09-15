@@ -40,11 +40,11 @@ namespace Experiment::Framework
         lightMaterial->setUniform(Lights::Uniforms::lightPos, entity.transform.getMatrix());
         lightMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
 
-        lightMaterial->bind(engine);
+        lightMaterial->bind();
         
         doDrawLight(engine, entity, deltaTime);
 
-        lightMaterial->unbind(engine);
+        lightMaterial->unbind();
     }
 
     void PointLightComponent::endDrawLight(Engine& engine, Entity& entity, float deltaTime)

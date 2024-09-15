@@ -80,7 +80,5 @@ namespace Experiment::Framework
         void start(Framework::Engine& engine, Framework::Entity& entity) override;
         void update(Engine& engine, Entity& entity, float deltaTime) override;
         void draw(Engine& engine, Entity& entity, float deltaTime) override;
-        void drawLight(Engine& engine, Entity& entity, float deltaTime) override;
-        void endDrawLight(Engine& engine, Entity& entity, float deltaTime) override;
     };
 }

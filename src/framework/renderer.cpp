@@ -17,7 +17,7 @@ namespace Experiment::Framework
         std::unique_ptr<Material>&& material
         , const glm::ivec2& dimensions       
         )
-        : material(material)
+        : material(std::move(material))
         , dimensions(dimensions)
         {
             glGenFramebuffers(1, &frameBuffer);
@@ -25,30 +25,39 @@ namespace Experiment::Framework
             // - position color buffer
             glGenTextures(1, &gPosition);
             glBindTexture(GL_TEXTURE_2D, gPosition);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, screenWidth, screenHeight, 0, GL_RGB, GL_FLOAT, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, dimensions.x, dimensions.y, 0, GL_RGB, GL_FLOAT, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
             // - normal color buffer
             glGenTextures(1, &gNormal);
             glBindTexture(GL_TEXTURE_2D, gNormal);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, screenWidth, screenHeight, 0, GL_RGB, GL_FLOAT, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, dimensions.x, dimensions.y, 0, GL_RGB, GL_FLOAT, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
             // - color + specular color buffer
             glGenTextures(1, &gAlbedo);
             glBindTexture(GL_TEXTURE_2D, gAlbedo);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedo, 0);
+
+            // - material ID buffer
+            glGenTextures(1, &gMaterial);
+            glBindTexture(GL_TEXTURE_2D, gMaterial);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, dimensions.x, dimensions.y, 0, GL_RED, GL_FLOAT, NULL);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gMaterial, 0);
+
             // - tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
-            glDrawBuffers(3, attachments);
+            glDrawBuffers(4, attachments);
             // - create and attach depth buffer (renderbuffer)
             glGenRenderbuffers(1, &rboDepth);
             glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, dimensions.x, dimensions.y);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
             // - finally check if framebuffer is complete
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -61,18 +70,19 @@ namespace Experiment::Framework
             glDeleteTextures(1, &gPosition);
             glDeleteTextures(1, &gNormal);
             glDeleteTextures(1, &gAlbedo);
+            glDeleteTextures(1, &gMaterial);
             glDeleteRenderbuffers(1, &rboDepth);
             glDeleteFramebuffers(1, &frameBuffer);
         }
 
 
-        FramebufferBinding::FramebufferBinding(const Resource* resource)
-            : _resource(resource)
+        FrameBufferBinding::FrameBufferBinding(const Resource* resource)
+        : _resource(resource)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, resource->frameBuffer);
         }
 
-        FramebufferBinding::~FramebufferBinding()
+        FrameBufferBinding::~FrameBufferBinding()
         {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
@@ -85,6 +95,8 @@ namespace Experiment::Framework
             glBindTexture(GL_TEXTURE_2D, resource->gNormal);
             glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gAlbedo);
             glBindTexture(GL_TEXTURE_2D, resource->gAlbedo);
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gMaterial);
+            glBindTexture(GL_TEXTURE_2D, resource->gMaterial);
         }
 
         TextureBinding::~TextureBinding()
@@ -94,6 +106,8 @@ namespace Experiment::Framework
             glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gNormal);
             glBindTexture(GL_TEXTURE_2D, 0); // Unbind gNormal
             glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gAlbedo);
+            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gAlbedo
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gMaterial);
             glBindTexture(GL_TEXTURE_2D, 0); // Unbind gAlbedo
         }
     }

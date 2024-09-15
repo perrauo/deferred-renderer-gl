@@ -49,8 +49,6 @@ namespace Experiment::Demo
             if (entry.path().extension() == ".dae") {
                 ModelLoadContext loadContext{ .engine = engine };
                 loadContext.baseTexturePath = "game/environment";
-                //loadContext.baseGeomMaterial = engine.lambertGeomMaterial;
-                //loadContext.baseLightMaterial = engine.lambertLightMaterial;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {
@@ -58,8 +56,6 @@ namespace Experiment::Demo
                     auto& meshComp = meshSystem.addComponent(entity);
                     meshComp.mesh = loadedMesh.mesh;
                     meshComp.material = MaterialType::Lambert;
-                    meshComp.geomMaterial = loadedMesh.geomMaterial;
-                    meshComp.lightMaterial = loadedMesh.lightMaterial;
                     entity.transform = loadedMesh.transform;
                 }
             }
@@ -70,14 +66,10 @@ namespace Experiment::Demo
             if (entry.path().extension() == ".dae") {
                 ModelLoadContext loadContext{ .engine = engine };
                 loadContext.baseTexturePath = "game/entities/enemy";
-                //loadContext.baseGeomMaterial = engine.lambertGeomMaterial;
-                //loadContext.baseLightMaterial = engine.lambertLightMaterial;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {
                     _enemyMesh = loadedMesh.mesh;
-                    _enemyGeomMaterial = loadedMesh.geomMaterial;
-                    _enemyLightMaterial = loadedMesh.lightMaterial;
                     break;
                 }
             }
@@ -114,8 +106,7 @@ namespace Experiment::Demo
             enemySystem.addComponent(entity);
             auto& meshComp = meshSystem.addComponent(entity);
             meshComp.mesh = _enemyMesh;
-            meshComp.geomMaterial = _enemyGeomMaterial;
-            meshComp.lightMaterial = _enemyLightMaterial;
+            meshComp.material = MaterialType::Lambert;
             lastSpawnTime = now;
         }
     }

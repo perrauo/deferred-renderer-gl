@@ -135,6 +135,7 @@ namespace Experiment::Framework
             return -1;
         }
         // material setup before the game starts
+        lightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/light"));
         pointLightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
         //lambertGeomMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertGeom"));
         //lambertLightMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertLight"));
@@ -200,9 +201,11 @@ namespace Experiment::Framework
         // Bind the GBuffer        
         using namespace GBuffer;
         
-        EXP_SCOPED(FramebufferBinding binding(gbuffer.get()))
-        {
-
+        EXP_SCOPED(
+        FrameBufferBinding frameBuffer(gbuffer.get())
+        , MaterialBinding material(gbuffer->material.get())
+        )
+        {            
             // Clear the color and depth buffers
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -211,30 +214,25 @@ namespace Experiment::Framework
 
             // Draw the entities
             drawEntities(deltaTime);
-
         }
-        EXP_SCOPED(TextureBinding binding(gbuffer.get()))
+        EXP_SCOPED(MaterialBinding material(lightMaterial.get()))
         {
-            // Draw the lights
-            drawLights(deltaTime);
+            // TODO
+            //EXP_SCOPED(TextureBinding binding(gbuffer.get()))
+            //{
+            //    // Draw the lights
+            //    drawLights(deltaTime);
+            //}
+
+            // Bind the framebuffer you want to read from
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, gbuffer->frameBuffer);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Bind the default framebuffer (or another framebuffer) to write to
+            glBlitFramebuffer(0, 0, screenSize.x, screenSize.y, 0, 0, screenSize.x, screenSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST); // Copy the content of the framebuffer to the default framebuffer
+            glBindTexture(GL_TEXTURE_2D, (int)ReservedTextureSlot::ScreenTexture); // Bind the texture you want to write to
+            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, screenSize.x, screenSize.y, 0); // Copy the framebuffer content to the texture
+
+            drawQuad();
         }
-
-        // you don't need to unbind the GBuffer's framebuffer when drawing the light pass, since you're reusing the GBuffer's textures.
-        //finalPassMaterial->unbind(*this);
-
-        // Bind the framebuffer you want to read from
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, gbuffer->frameBuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Bind the default framebuffer (or another framebuffer) to write to
-        glBlitFramebuffer(0, 0, screenSize.x, screenSize.y, 0, 0, screenSize.x, screenSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST); // Copy the content of the framebuffer to the default framebuffer
-        glBindTexture(GL_TEXTURE_2D, (int)ReservedTextureSlot::ScreenTexture); // Bind the texture you want to write to
-        glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, screenSize.x, screenSize.y, 0); // Copy the framebuffer content to the texture
-
-        //finalPassMaterial->setUniform(Uniforms::screenTexture, ReservedTextureSlot::ScreenTexture);
-        //finalPassMaterial->bind(*this);        
-
-        // Draw the quad
-        drawQuad();
-
     }
 
     void Engine::update(float deltaTime) {

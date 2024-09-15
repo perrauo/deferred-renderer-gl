@@ -122,49 +122,20 @@ namespace Experiment::Framework
     {
         using namespace Materials;
 
-        if (
-            mesh &&
-            geomMaterial
-            )
-        {
-            geomMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
-            geomMaterial->setUniform(Uniforms::view, engine.viewMatrix);
-            geomMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
-            geomMaterial->bind(engine);
+        EXP_IF(
+        mesh
+        , auto gbuffer = engine.gbuffer.get()
+        , auto material = gbuffer->material.get()
+        )
+        {            
+            material->setUniform(Uniforms::model, entity.transform.getMatrix());
+            material->setUniform(Uniforms::view, engine.viewMatrix);
+            material->setUniform(Uniforms::projection, engine.projectionMatrix);
+            material->setUniform(Uniforms::material, (int)material);
             
             // Bind the VAO of the mesh and draw it
             // Draw the mesh
             mesh->draw();
-
-            geomMaterial->unbind(engine);
         }
-    }
-
-    void MeshComponent::drawLight(Engine& engine, Entity& entity, float deltaTime)
-    {
-        using namespace Materials;        
-
-        if (
-            mesh &&
-            lightMaterial
-            )
-        {
-            // Get the transformation matrix from the entity
-            lightMaterial->setUniform(Lights::Uniforms::lightPos, entity.transform.position);
-            lightMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
-            // TODO: rename light position
-            lightMaterial->setUniform(Uniforms::view, engine.viewMatrix);
-            lightMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
-            lightMaterial->bind(engine);
-
-            // Draw the quad
-            mesh->draw();
-
-            lightMaterial->unbind(engine);
-        }
-    }
-
-    void MeshComponent::endDrawLight(Engine& engine, Entity& entity, float deltaTime)
-    {
     }
 }
