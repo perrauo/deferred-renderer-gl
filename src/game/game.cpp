@@ -59,6 +59,7 @@ namespace Experiment::Demo
                     auto& entity = engine.spawnEntity();
                     auto& meshComp = meshSystem.addComponent(entity);
                     meshComp.mesh = loadedMesh.mesh;
+                    meshComp.material = loadedMesh.material;
                     entity.transform = loadedMesh.transform;
                 }
             }

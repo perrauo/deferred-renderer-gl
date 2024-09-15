@@ -35,11 +35,19 @@ namespace Experiment::Framework
     class Material;
     class MaterialInstance;
 
-    class EXPERIMENT_FRAMEWORK_API PointLightComponent : public Component {
+    enum class LightType : int
+    {
+        Invalid = -1,
+        Point,
+        Directional
+    };
+
+    class EXPERIMENT_FRAMEWORK_API LightComponent : public Component {
     public:
         glm::vec3 color;
         float intensity;
-        std::shared_ptr<MaterialInstance> lightMaterial;
+        LightType type = LightType::Invalid;
+        glm::vec3 direction;
 
         virtual void start(Engine& engine, Entity& entity);
         virtual void update(Engine& engine, Entity& entity, float deltaTime);

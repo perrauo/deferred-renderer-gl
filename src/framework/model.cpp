@@ -132,7 +132,7 @@ namespace Experiment::Framework
         {
             if (texture)
             {
-                loadMaterial.material->setUniform(Materials::Uniforms::albedoColor, texture);
+                loadMaterial.material->setUniform(Materials::Uniforms::albedoMap, texture);
             }
 
             auto& engine = loadContext.engine;

@@ -243,6 +243,12 @@ namespace Experiment::Framework
             glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gMaterial);
             glBindTexture(GL_TEXTURE_2D, gbuffer->gMaterial);
 
+            // Set the uniform sampler locations
+            lightMaterial->setUniform(Uniforms::gPosition, ReservedTextureSlot::gPosition);
+            lightMaterial->setUniform(Uniforms::gNormal, ReservedTextureSlot::gNormal);
+            lightMaterial->setUniform(Uniforms::gAlbedo, ReservedTextureSlot::gAlbedo);
+            lightMaterial->setUniform(Uniforms::gMaterial, ReservedTextureSlot::gMaterial);            
+
             drawQuad();
 
             // Unbind GBuffer textures

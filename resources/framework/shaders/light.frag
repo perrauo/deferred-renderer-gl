@@ -7,8 +7,14 @@ layout(binding = 1) uniform sampler2D gNormal;
 layout(binding = 2) uniform sampler2D gAlbedo;
 layout(binding = 3) uniform sampler2D gMaterial;
 
-uniform vec3 lightPosition;
-uniform vec3 lightColor;
+struct PointLight {
+    vec3 position;
+    vec3 color;
+    float intensity;
+};
+
+uniform PointLight pointLights[10]; // Support up to 10 lights
+uniform int numPointLights;
 
 vec3 phongLighting(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightCol) {
     vec3 lightDir = normalize(lightPos - fragPos);
@@ -33,11 +39,13 @@ void main() {
     vec3 albedo = texture(gAlbedo, gl_FragCoord.xy / vec2(textureSize(gAlbedo, 0))).rgb;
     int material = int(texture(gMaterial, gl_FragCoord.xy / vec2(textureSize(gMaterial, 0))).r);
 
-    vec3 result;
-    if (material == 0) {
-        result = phongLighting(normal, fragPos, lightPosition, lightColor);
-    } else {
-        result = lambertLighting(normal, fragPos, lightPosition, lightColor);
+    vec3 result = vec3(0.0);
+    for (int i = 0; i < numPointLights; ++i) {
+        if (material == 0) {
+            result += phongLighting(normal, fragPos, pointLights[i].position, pointLights[i].color * pointLights[i].intensity);
+        } else {
+            result += lambertLighting(normal, fragPos, pointLights[i].position, pointLights[i].color * pointLights[i].intensity);
+        }
     }
 
     outColor = vec4(result * albedo, 1.0);

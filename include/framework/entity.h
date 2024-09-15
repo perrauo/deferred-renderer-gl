@@ -13,9 +13,9 @@ namespace Experiment::Framework
 
     class EXPERIMENT_FRAMEWORK_API Entity {
     public:
-        
+
         EntityId id = -1;
-        Transform transform;        
+        Transform transform;
 
         bool markedForDeletion = false;
         bool hasStarted = false;
@@ -36,6 +36,8 @@ namespace Experiment::Framework
 
     class EXPERIMENT_FRAMEWORK_API Component {
     public:
+        int componentId = -1; // Add componentId to the Component class
+
         virtual void start(Engine& engine, Entity& entity) {}
         virtual void update(Engine& engine, Entity& entity, float deltaTime) {}
         virtual void draw(Engine& engine, Entity& entity, float deltaTime) {}
@@ -43,8 +45,8 @@ namespace Experiment::Framework
         virtual void drawLight(Engine& engine, Entity& entity, float deltaTime) {}
         virtual void endDrawLight(Engine& engine, Entity& entity, float deltaTime) {}
     };
-    
-    class ISystem 
+
+    class ISystem
     {
     public:
         virtual void start(Engine& engine, Entity& entity) = 0;
@@ -56,12 +58,11 @@ namespace Experiment::Framework
     };
 
     template<typename T>
-    class System : public ISystem 
-    {    
-        // TODO: We need to optimize with contiguous datatype
-        // otherwise this defeats the point of ECS
-        std::unordered_map<EntityId, T> _components;
-    
+    class System : public ISystem
+    {
+        std::vector<T> _components;
+        std::unordered_map<EntityId, int> _componentIndices;
+
     public:
         bool isValid = true;
 
@@ -71,71 +72,90 @@ namespace Experiment::Framework
 
         void start(Engine& engine, Entity& entity) override
         {
-            auto it = _components.find(entity.id);
-            if (it != _components.end())
+            auto it = _componentIndices.find(entity.id);
+            if (it != _componentIndices.end())
             {
-                it->second.start(engine, entity);
+                _components[it->second].start(engine, entity);
             }
         }
 
         void draw(Engine& engine, Entity& entity, float deltaTime) override
         {
-            auto it = _components.find(entity.id);
-            if (it != _components.end())
+            auto it = _componentIndices.find(entity.id);
+            if (it != _componentIndices.end())
             {
-                it->second.draw(engine, entity, deltaTime);
+                _components[it->second].draw(engine, entity, deltaTime);
             }
         }
 
         void endDraw(Engine& engine, Entity& entity, float deltaTime) override
         {
-            auto it = _components.find(entity.id);
-            if (it != _components.end())
+            auto it = _componentIndices.find(entity.id);
+            if (it != _componentIndices.end())
             {
-                it->second.endDraw(engine, entity, deltaTime);
+                _components[it->second].endDraw(engine, entity, deltaTime);
             }
         }
 
         void drawLight(Engine& engine, Entity& entity, float deltaTime) override
         {
-            auto it = _components.find(entity.id);
-            if (it != _components.end())
+            auto it = _componentIndices.find(entity.id);
+            if (it != _componentIndices.end())
             {
-                it->second.drawLight(engine, entity, deltaTime);
+                _components[it->second].drawLight(engine, entity, deltaTime);
             }
         }
 
         void endDrawLight(Engine& engine, Entity& entity, float deltaTime) override
         {
-            auto it = _components.find(entity.id);
-            if (it != _components.end())
+            auto it = _componentIndices.find(entity.id);
+            if (it != _componentIndices.end())
             {
-                it->second.endDrawLight(engine, entity, deltaTime);
+                _components[it->second].endDrawLight(engine, entity, deltaTime);
             }
         }
 
         void update(Engine& engine, Entity& entity, float deltaTime) override
         {
-            auto it = _components.find(entity.id);
-            if (it != _components.end())
-            {                
-                it->second.update(engine, entity, deltaTime);
+            auto it = _componentIndices.find(entity.id);
+            if (it != _componentIndices.end())
+            {
+                _components[it->second].update(engine, entity, deltaTime);
             }
         }
 
         T& getComponent(EntityId id) {
-            // operator[] on an unordered_map will create a new element if the key doesn't exist
-            return _components[id];
+            auto it = _componentIndices.find(id);
+            if (it != _componentIndices.end()) {
+                return _components[it->second];
+            }
+            throw std::runtime_error("Component not found");
         }
 
         T& addComponent(EntityId id) {
-            // operator[] on an unordered_map will create a new element if the key doesn't exist
-            return _components[id];
+            int index = _components.size();
+            _components.push_back(T());
+            _components.back().componentId = index;
+            _componentIndices[id] = index;
+            return _components.back();
         }
 
         void removeComponent(EntityId id)
         {
-            _components.erase(id);
+            auto it = _componentIndices.find(id);
+            if (it != _componentIndices.end()) {
+                int index = it->second;
+                _components.erase(_components.begin() + index);
+                _componentIndices.erase(it);
+
+                // Update indices of remaining components
+                for (auto& pair : _componentIndices) {
+                    if (pair.second > index) {
+                        pair.second--;
+                        _components[pair.second].componentId = pair.second;
+                    }
+                }
+            }
         }
     };
 }

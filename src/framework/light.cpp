@@ -8,68 +8,62 @@
 #include <iostream>
 #include <fstream>
 #include <boost/json.hpp>
+#include <vector>
 
 namespace Experiment::Framework
 {
-    void PointLightComponent::start(Engine& engine, Entity& entity)
+    void LightComponent::start(Engine& engine, Entity& entity)
     {
-        auto pointLight = engine.config.at("PointLight").as_object();
-        auto pointLightColor = pointLight.at("lightColor").as_object();
-        color.r = pointLightColor.at("r").as_double();
-        color.g = pointLightColor.at("g").as_double();
-        color.b = pointLightColor.at("b").as_double();
-        intensity = pointLight.at("lightIntensity").as_double();
-        //lightMaterial = std::make_shared<MaterialInstance>(engine.pointLightMaterial);
-    }
-    
-    void PointLightComponent::update(Engine& engine, Entity& entity, float deltaTime)
-    {
-    }
-    
-    void PointLightComponent::drawLight(Engine& engine, Entity& entity, float deltaTime)
-    {
-        using namespace Lights;
-
-        //lightMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
-        //lightMaterial->setUniform(Uniforms::view, engine.viewMatrix);
-        //lightMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
-
-        //lightMaterial->setUniform(Materials::Uniforms::screenSize, engine.screenSize);
-        //lightMaterial->setUniform(Lights::Uniforms::lightColor, color);
-        //lightMaterial->setUniform(Lights::Uniforms::lightIntensity, intensity);
-        //lightMaterial->setUniform(Lights::Uniforms::lightPos, entity.transform.getMatrix());
-        //lightMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
-
-        //lightMaterial->bind();
-        //
-        //doDrawLight(engine, entity, deltaTime);
-
-        //lightMaterial->unbind();
+        if (type == LightType::Point) {
+            auto pointLight = engine.config.at("PointLight").as_object();
+            auto pointLightColor = pointLight.at("lightColor").as_object();
+            color.r = pointLightColor.at("r").as_double();
+            color.g = pointLightColor.at("g").as_double();
+            color.b = pointLightColor.at("b").as_double();
+            intensity = pointLight.at("lightIntensity").as_double();
+        }
+        else if (type == LightType::Directional) {
+            auto directionalLight = engine.config.at("DirectionalLight").as_object();
+            auto directionalLightColor = directionalLight.at("lightColor").as_object();
+            color.r = directionalLightColor.at("r").as_double();
+            color.g = directionalLightColor.at("g").as_double();
+            color.b = directionalLightColor.at("b").as_double();
+            intensity = directionalLight.at("lightIntensity").as_double();
+            auto directionalLightDir = directionalLight.at("lightDir").as_object();
+            direction.x = directionalLightDir.at("x").as_double();
+            direction.y = directionalLightDir.at("y").as_double();
+            direction.z = directionalLightDir.at("z").as_double();
+        }
     }
 
-    void PointLightComponent::endDrawLight(Engine& engine, Entity& entity, float deltaTime)
+    void LightComponent::update(Engine& engine, Entity& entity, float deltaTime)
     {
+        // Update light position or direction if necessary
     }
 
-    void PointLightComponent::doDrawLight(Engine& engine, Entity& entity, float deltaTime)
+    void LightComponent::drawLight(Engine& engine, Entity& entity, float deltaTime)
     {
-        // 1. Create a dummy VAO and VBO:
-    //    static GLuint dummyVAO = 0, dummyVBO = 0;
-    //    if (!dummyVAO)
-    //    {
-    //        glGenVertexArrays(1, &dummyVAO);
-    //        glGenBuffers(1, &dummyVBO);
-    //        // 2. Bind the dummy VAO and VBO:
-    //        glBindVertexArray(dummyVAO);
-    //        glBindBuffer(GL_ARRAY_BUFFER, dummyVBO);
-    //        // 3. Define a single vertex with a position of(0, 0, 0) :
-    //        GLfloat vertex[] = { 0.0f, 0.0f, 0.0f };
-    //        glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
-    //        // 4. Set up the vertex attribute :
-    //        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-    //        glEnableVertexAttribArray(0);
-    //    }
-    //    // 5. Draw the single vertex :
-    //    glDrawArrays(GL_POINTS, 0, 1);
+        // Bind light data to shader
+        auto& system = engine.getSystem<LightComponent>();
+        if (type == LightType::Point) {
+            std::string lightPosUniform = "pointLights[" + std::to_string(componentId) + "].position";
+            std::string lightColorUniform = "pointLights[" + std::to_string(componentId) + "].color";
+            std::string lightIntensityUniform = "pointLights[" + std::to_string(componentId) + "].intensity";
+
+            // Assuming you have a method to set uniforms in your shader
+            engine.lightMaterial->setUniform(lightPosUniform, entity.transform.position);
+            engine.lightMaterial->setUniform(lightColorUniform, color);
+            engine.lightMaterial->setUniform(lightIntensityUniform, intensity);
+        }
+        else if (type == LightType::Directional) {
+            std::string lightDirUniform = "directionalLights[" + std::to_string(componentId) + "].direction";
+            std::string lightColorUniform = "directionalLights[" + std::to_string(componentId) + "].color";
+            std::string lightIntensityUniform = "directionalLights[" + std::to_string(componentId) + "].intensity";
+
+            // Assuming you have a method to set uniforms in your shader
+            engine.lightMaterial->setUniform(lightDirUniform, direction);
+            engine.lightMaterial->setUniform(lightColorUniform, color);
+            engine.lightMaterial->setUniform(lightIntensityUniform, intensity);
+        }
     }
 }

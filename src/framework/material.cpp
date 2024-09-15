@@ -256,7 +256,7 @@ namespace Experiment::Framework
 
     void MaterialProxy::setUniforms(const std::shared_ptr<Material>& material)
     {                
-        material->bind();
+        // material->bind();
 
         // Set the uniforms
         for (const auto& uniform : _floatUniforms) {

@@ -32,7 +32,7 @@ namespace Experiment::Framework
             constexpr char textureSampler[] = "textureSampler";
             constexpr char screenSize[] = "screenSize";
 
-            constexpr char albedoColor[] = "albedoColor";
+            constexpr char albedoMap[] = "albedoMap";
         }
         namespace Attributes
         {
