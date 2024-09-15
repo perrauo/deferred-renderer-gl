@@ -80,25 +80,25 @@ namespace Experiment::Framework
     // IMaterial
     // -------------------
 
-    class EXPERIMENT_FRAMEWORK_API IMaterial 
-    {
-    public:
+    // class EXPERIMENT_FRAMEWORK_API IMaterial 
+    // {
+    // public:
         
-        virtual void bind() = 0;
+    //     virtual void bind() = 0;
 
-        virtual void unbind() = 0;
+    //     virtual void unbind() = 0;
 
-        virtual GLuint getProgramId() const = 0;
+    //     virtual GLuint getProgramId() const = 0;
 
-        virtual std::string getName() const = 0;
+    //     virtual std::string getName() const = 0;
 
-    };
+    // };
 
     // -------------------
     // Material
     // -------------------
 
-    class EXPERIMENT_FRAMEWORK_API Material : public IMaterial
+    class EXPERIMENT_FRAMEWORK_API Material
     {
     private:
         GLuint _programId;
@@ -124,13 +124,13 @@ namespace Experiment::Framework
 
         ~Material();
 
-        void bind() override;
+        void bind();
 
-        void unbind() override;
+        void unbind();
 
-        virtual std::string getName() const override { return _name; }
+        virtual std::string getName() const { return _name; }
 
-        GLuint getProgramId() const override { return _programId; }
+        GLuint getProgramId() const { return _programId; }
 
         void setUniform(const std::string& name, float value);
 
@@ -157,9 +157,13 @@ namespace Experiment::Framework
     {
     public:
 
-        MaterialType Type = MaterialType::Invalid;
+        MaterialType type = MaterialType::Invalid;
 
         ~MaterialProxy() = default;
+
+        MaterialProxy(MaterialType type)
+            : type(type)
+        {}
 
         MaterialProxy(const MaterialProxy&) = delete;
         MaterialProxy& operator=(const MaterialProxy&) = delete;
@@ -180,12 +184,10 @@ namespace Experiment::Framework
 
         void setUniform(const std::string& name, const std::shared_ptr<Texture>& value);
 
-        void bind();
-
-        void unbind();
+        void setUniforms(const std::shared_ptr<Material>& material);
 
     private:
-        std::shared_ptr<Material> _material;
+
         std::unordered_map<std::string, std::shared_ptr<Texture>> _textureUniforms;
         std::unordered_map<std::string, int> _intUniforms;
         std::unordered_map<std::string, float> _floatUniforms;
@@ -197,9 +199,9 @@ namespace Experiment::Framework
 
     class MaterialBinding
     {
-        IMaterial* material = nullptr;
+        Material* material = nullptr;
     public:
-        MaterialBinding(IMaterial* material)
+        MaterialBinding(Material* material)
         : material(material)
         {
             material->bind();

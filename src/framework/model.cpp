@@ -20,7 +20,6 @@
 
 namespace Experiment::Framework
 {
-
     // -------------------
     // Model
     // -------------------
@@ -104,8 +103,7 @@ namespace Experiment::Framework
     void loadModelProcessMaterial(ModelLoadContext& loadContext, const aiScene* scene, const aiNode* node, unsigned int materialId)
     {       
         auto& loadMaterial = loadContext.materials[materialId];
-        loadMaterial.geomMaterial = std::make_shared<MaterialInstance>(loadContext.baseGeomMaterial);
-        loadMaterial.lightMaterial = std::make_shared<MaterialInstance>(loadContext.baseLightMaterial);
+        loadMaterial.material = std::make_shared<MaterialProxy>(loadContext.materialType);
       
         aiMaterial* aiMaterial = scene->mMaterials[materialId];
         aiString aiTexturePath;
@@ -124,35 +122,37 @@ namespace Experiment::Framework
                 texture = it->second;
             }
         }
+        else
+        {
+            // Use default pink texture
+            texture = loadContext.defaultTexture;
+        }
 
-        if (loadMaterial.geomMaterial->getName() == Materials::Lambert::name)
+        if (loadMaterial.material->type == MaterialType::Lambert)
         {
             if (texture)
             {
-                loadMaterial.geomMaterial->setUniform(Materials::Lambert::Uniforms::textureDiffuse, texture);
+                loadMaterial.material->setUniform(Materials::Uniforms::albedoColor, texture);
             }
 
             auto& engine = loadContext.engine;
             auto lambert = engine.config.at("Lambert").as_object();
 
             float lightIntensity = lambert.at("lightIntensity").as_double();
-            loadMaterial.geomMaterial->setUniform(Materials::Lambert::Uniforms::lightIntensity, lightIntensity);
-            loadMaterial.lightMaterial->setUniform(Materials::Lambert::Uniforms::lightIntensity, lightIntensity);
+            loadMaterial.material->setUniform(Materials::Lambert::Uniforms::lightIntensity, lightIntensity);
 
             auto lightColor = lambert.at("lightColor").as_object();
             glm::vec3 color;
             color.r = lightColor.at("r").as_double();
             color.g = lightColor.at("g").as_double();
             color.b = lightColor.at("b").as_double();
-            loadMaterial.geomMaterial->setUniform(Materials::Lambert::Uniforms::lightColor, color);
-            loadMaterial.lightMaterial->setUniform(Materials::Lambert::Uniforms::lightColor, color);
+            loadMaterial.material->setUniform(Materials::Lambert::Uniforms::lightColor, color);
 
             auto diffuseColor = lambert.at("diffuseColor").as_object();
             color.r = diffuseColor.at("r").as_double();
             color.g = diffuseColor.at("g").as_double();
             color.b = diffuseColor.at("b").as_double();
-            loadMaterial.geomMaterial->setUniform(Materials::Lambert::Uniforms::diffuseColor, color);
-            loadMaterial.lightMaterial->setUniform(Materials::Lambert::Uniforms::diffuseColor, color);
+            loadMaterial.material->setUniform(Materials::Lambert::Uniforms::diffuseColor, color);
         }
     }
 
@@ -191,8 +191,7 @@ namespace Experiment::Framework
             auto it = loadContext.materials.find(materialIdx);
             if (it != loadContext.materials.end())
             {
-                mesh.geomMaterial = it->second.geomMaterial;
-                mesh.lightMaterial = it->second.lightMaterial;
+                mesh.material = it->second.material;
             }
         }
     }

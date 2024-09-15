@@ -8,6 +8,7 @@
 #include "framework/entity.h"
 #include "framework/utils.h"
 #include "framework/light.h"
+#include "framework/texture.h"
 
 #include <glm/gtc/random.hpp>
 
@@ -30,6 +31,7 @@ namespace Experiment::Demo
         _enemySpawnFrequency = enemy.at("spawnFrequency").as_double();
         auto& spawnDistance = enemy.at("spawnDistance");
         _enemySpawnDistance = { spawnDistance.at("min").as_double(), spawnDistance.at("max").as_double() };
+        _pinkTexture = std::make_shared<Texture>("");
 
         auto& lightEntity = engine.spawnEntity();
         auto& lightSystem = engine.addSystem<PointLightComponent>();
@@ -49,13 +51,14 @@ namespace Experiment::Demo
             if (entry.path().extension() == ".dae") {
                 ModelLoadContext loadContext{ .engine = engine };
                 loadContext.baseTexturePath = "game/environment";
+                loadContext.materialType = MaterialType::Lambert;
+                loadContext.defaultTexture = _pinkTexture;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {
                     auto& entity = engine.spawnEntity();
                     auto& meshComp = meshSystem.addComponent(entity);
                     meshComp.mesh = loadedMesh.mesh;
-                    meshComp.material = MaterialType::Lambert;
                     entity.transform = loadedMesh.transform;
                 }
             }
@@ -66,10 +69,13 @@ namespace Experiment::Demo
             if (entry.path().extension() == ".dae") {
                 ModelLoadContext loadContext{ .engine = engine };
                 loadContext.baseTexturePath = "game/entities/enemy";
+                loadContext.materialType = MaterialType::Lambert;
+                loadContext.defaultTexture = _pinkTexture;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {
                     _enemyMesh = loadedMesh.mesh;
+                    _enemyMaterial = loadedMesh.material;
                     break;
                 }
             }
@@ -106,7 +112,7 @@ namespace Experiment::Demo
             enemySystem.addComponent(entity);
             auto& meshComp = meshSystem.addComponent(entity);
             meshComp.mesh = _enemyMesh;
-            meshComp.material = MaterialType::Lambert;
+            meshComp.material = _enemyMaterial;
             lastSpawnTime = now;
         }
     }

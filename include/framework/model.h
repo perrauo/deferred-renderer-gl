@@ -24,10 +24,10 @@ namespace Experiment::Framework
 {
     class Engine;
     class Mesh;
-    class IMaterial;
     class Material;
     class MaterialProxy;
     class Texture;
+    enum class MaterialType : int;
 
     struct EXPERIMENT_FRAMEWORK_API ModelLoadMesh
     {
@@ -52,9 +52,9 @@ namespace Experiment::Framework
     struct EXPERIMENT_FRAMEWORK_API ModelLoadContext
     {
         Engine& engine;
-        std::shared_ptr<Material> baseGeomMaterial;
-        std::shared_ptr<Material> baseLightMaterial;
+        MaterialType materialType = (MaterialType)-1;
         std::string baseTexturePath;
+        std::shared_ptr<Texture> defaultTexture;
         std::unordered_map<unsigned int, ModelLoadMesh> meshes;
         std::unordered_map<unsigned int, ModelLoadMaterial> materials;
         std::unordered_map<std::string, std::shared_ptr<Texture>> textures;

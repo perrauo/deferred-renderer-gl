@@ -14,7 +14,8 @@ namespace Experiment::Framework
     class Mesh;
     class MeshComponent;
     class Material;
-    class MaterialInstance;
+    class MaterialProxy;
+    class Texture;
 }
 
 namespace Experiment::Demo
@@ -29,10 +30,10 @@ namespace Experiment::Demo
 
         Framework::EntityId _playerId = -1;
         std::shared_ptr<Framework::Mesh> _enemyMesh;
-        std::shared_ptr<Framework::MaterialInstance> _enemyGeomMaterial;
-        std::shared_ptr<Framework::MaterialInstance> _enemyLightMaterial;
+        std::shared_ptr<Framework::MaterialProxy> _enemyMaterial;
         float _enemySpawnFrequency = -1;
         glm::vec2 _enemySpawnDistance = { 10, 10 };
+        std::shared_ptr<Framework::Texture> _pinkTexture;
 
     public:        
 

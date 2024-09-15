@@ -11,6 +11,9 @@
 
 namespace Experiment::Framework
 {
+    const unsigned char pinkTextureData[3] = { 255, 0, 255 }; // RGB values for pink
+
+
     // -------------------
     // Texture
     // -------------------
@@ -24,16 +27,17 @@ namespace Experiment::Framework
     {
         std::filesystem::path filePath(path);
         std::string extension = filePath.extension().string();
+        glGenTextures(1, &_textureID);
+        glBindTexture(_textureTarget, _textureID);
+
         if (isSupportedExtension(extension))
         {
-            glGenTextures(1, &_textureID);
-            glBindTexture(_textureTarget, _textureID);
-
             if (extension == ".dds")
             {
                 gli::texture Texture = gli::load(path);
                 if (Texture.empty()) {
                     std::cout << "Failed to load texture: " << path << std::endl;
+                    useDefaultPinkTexture();
                     return;
                 }
 
@@ -47,7 +51,6 @@ namespace Experiment::Framework
             }
             else
             {
-                // Load texture data from file (e.g., using stb_image)
                 int width, height, channels;
                 unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
                 if (data) {
@@ -62,9 +65,23 @@ namespace Experiment::Framework
                 }
                 else {
                     std::cout << "Failed to load texture: " << path << std::endl;
+                    useDefaultPinkTexture();
                 }
             }
         }
+        else
+        {
+            useDefaultPinkTexture();
+        }
+    }
+
+    void Texture::useDefaultPinkTexture()
+    {
+        glTexImage2D(_textureTarget, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, pinkTextureData);
+        glTexParameteri(_textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(_textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(_textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(_textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
     Texture::~Texture() {

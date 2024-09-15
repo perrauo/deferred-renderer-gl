@@ -21,7 +21,7 @@ struct aiMesh;
 namespace Experiment::Framework
 {
     class Material;
-    class MaterialInstance;
+    class MaterialProxy;
     class Engine;
     enum class MaterialType : int;
 
@@ -73,9 +73,7 @@ namespace Experiment::Framework
     {
     public:
         std::shared_ptr<Mesh> mesh;
-        MaterialType material = (MaterialType)-1;
-        std::shared_ptr<MaterialInstance> geomMaterial;
-        std::shared_ptr<MaterialInstance> lightMaterial;
+        std::shared_ptr<MaterialProxy> material;
 
         void start(Framework::Engine& engine, Framework::Entity& entity) override;
         void update(Engine& engine, Entity& entity, float deltaTime) override;

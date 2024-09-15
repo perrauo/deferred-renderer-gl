@@ -254,47 +254,36 @@ namespace Experiment::Framework
         _mat4Uniforms[name] = value;
     }
 
-    void MaterialProxy::unbind()
-    {
-        if (auto material = _material)
-        {
-            material->unbind();
+    void MaterialProxy::setUniforms(const std::shared_ptr<Material>& material)
+    {                
+        material->bind();
+
+        // Set the uniforms
+        for (const auto& uniform : _floatUniforms) {
+            material->setUniform(uniform.first, uniform.second);
         }
-    }
-
-    void MaterialProxy::bind()
-    {        
-        if (auto material = _material)
-        {
-            material->bind();
-
-            // Set the uniforms
-            for (const auto& uniform : _floatUniforms) {
-                material->setUniform(uniform.first, uniform.second);
-            }
-            for (const auto& uniform : _intUniforms) {
-                material->setUniform(uniform.first, uniform.second);
-            }
-            for (const auto& uniform : _vec2Uniforms) {
-                material->setUniform(uniform.first, uniform.second);
-            }
-            for (const auto& uniform : _vec3Uniforms) {
-                material->setUniform(uniform.first, uniform.second);
-            }
-            for (const auto& uniform : _mat4Uniforms) {
-                material->setUniform(uniform.first, uniform.second);
-            }
-
-            // Set the texture uniforms
-            using namespace DeferredShading;
-            int textureUnit = numTexturesReserved;
-            for (const auto& textureUniform : _textureUniforms) {
-                if (auto texture = textureUniform.second) {
-                    texture->bind(textureUnit);
-                    material->setUniform(textureUniform.first, textureUnit);
-                    textureUnit++;
-                }
-            }
+        for (const auto& uniform : _intUniforms) {
+            material->setUniform(uniform.first, uniform.second);
         }
+        for (const auto& uniform : _vec2Uniforms) {
+            material->setUniform(uniform.first, uniform.second);
+        }
+        for (const auto& uniform : _vec3Uniforms) {
+            material->setUniform(uniform.first, uniform.second);
+        }
+        for (const auto& uniform : _mat4Uniforms) {
+            material->setUniform(uniform.first, uniform.second);
+        }
+
+        // Set the texture uniforms
+        using namespace DeferredShading;
+        int textureUnit = numTexturesReserved;
+        for (const auto& textureUniform : _textureUniforms) {
+            if (auto texture = textureUniform.second) {
+                texture->bind(textureUnit);
+                material->setUniform(textureUniform.first, textureUnit);
+                textureUnit++;
+            }
+        }        
     }
 }

@@ -24,6 +24,8 @@ namespace Experiment::Framework
         Texture(const std::string& path, GLenum textureTarget = GL_TEXTURE_2D);
         ~Texture();
 
+        void useDefaultPinkTexture();
+
         void bind(GLuint unit = 0) const;
         GLuint getTextureID() const { return _textureID; }
         std::string getPath() const { return _path; }
