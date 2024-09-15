@@ -21,7 +21,7 @@ namespace Experiment::Framework
 
     namespace DeferredShading
     {
-        constexpr int numTexturesReserved = 4;
+        constexpr int numTexturesReserved = 5;
 
         namespace FinalPass
         {
@@ -59,9 +59,8 @@ namespace Experiment::Framework
             unsigned int rboDepth = 0;
 
             glm::ivec2 dimensions;
-            std::unique_ptr<Material> material;
 
-            Resource(std::unique_ptr<Material>&& material, const glm::ivec2& dimensions);
+            Resource(const glm::ivec2& dimensions);
             ~Resource();
             Resource(Resource&&) = default;
             Resource(const Resource&) = delete;

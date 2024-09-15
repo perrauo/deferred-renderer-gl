@@ -24,6 +24,11 @@ namespace Experiment::Framework
         {
             constexpr char name[] = NAMEOF(PointLight);
         }
+
+        namespace Light
+        {
+            constexpr char name[] = NAMEOF(Light);
+        }
     }
 
     class Engine;

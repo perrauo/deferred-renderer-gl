@@ -26,16 +26,14 @@ namespace Experiment::Framework
     class Mesh;
     class IMaterial;
     class Material;
-    class MaterialInstance;
+    class MaterialProxy;
     class Texture;
 
     struct EXPERIMENT_FRAMEWORK_API ModelLoadMesh
     {
         std::shared_ptr<Mesh> mesh;
 
-        std::shared_ptr<MaterialInstance> geomMaterial;
-
-        std::shared_ptr<MaterialInstance> lightMaterial;
+        std::shared_ptr<MaterialProxy> material;
 
         std::shared_ptr<Texture> texture;
 
@@ -48,9 +46,7 @@ namespace Experiment::Framework
 
     struct EXPERIMENT_FRAMEWORK_API ModelLoadMaterial
     {
-        std::shared_ptr<MaterialInstance> geomMaterial;
-
-        std::shared_ptr<MaterialInstance> lightMaterial;
+        std::shared_ptr<MaterialProxy> material;
     };
 
     struct EXPERIMENT_FRAMEWORK_API ModelLoadContext

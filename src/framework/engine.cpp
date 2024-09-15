@@ -135,8 +135,10 @@ namespace Experiment::Framework
             return -1;
         }
         // material setup before the game starts
-        lightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/light"));
-        pointLightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
+        gbufferMaterial = std::make_shared<Material>(GBuffer::name, RES("framework/shaders/gbuffer"));
+        lightMaterial = std::make_shared<Material>(Lights::Light::name, RES("framework/shaders/light"));
+        //pointLightMaterial = std::make_shared<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
+
         //lambertGeomMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertGeom"));
         //lambertLightMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertLight"));
         //finalPassMaterial = std::make_unique<Material>(DeferredShading::FinalPass::name, RES("framework/shaders/finalPass"));
@@ -147,7 +149,7 @@ namespace Experiment::Framework
     {
         this->game = std::move(game);
         programStack.push(0);
-        gbuffer = std::make_shared<GBuffer::Resource>(std::make_unique<Material>(GBuffer::name, RES("framework/shaders/gbuffer")), screenSize);
+        gbuffer = std::make_shared<GBuffer::Resource>(screenSize);
         this->game->start(*this);
     }
 
@@ -196,42 +198,62 @@ namespace Experiment::Framework
 
     void Engine::draw(float deltaTime)
     {
-        using namespace DeferredShading;
-
-        // Bind the GBuffer        
+        using namespace DeferredShading;   
         using namespace GBuffer;
-        
-        EXP_SCOPED(
-        FrameBufferBinding frameBuffer(gbuffer.get())
-        , MaterialBinding material(gbuffer->material.get())
-        )
-        {            
-            // Clear the color and depth buffers
+
+        EXP_SCOPED(MaterialBinding material(gbufferMaterial.get()))
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, gbuffer->frameBuffer);
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            // Clear all four color attachments
+            GLfloat clearValues[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+            glClearBufferfv(GL_COLOR, 0, clearValues);
+            glClearBufferfv(GL_COLOR, 1, clearValues);
+            glClearBufferfv(GL_COLOR, 2, clearValues);
+            glClearBufferfv(GL_COLOR, 3, clearValues);
 
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
 
             // Draw the entities
             drawEntities(deltaTime);
+
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
         EXP_SCOPED(MaterialBinding material(lightMaterial.get()))
         {
-            // TODO
-            //EXP_SCOPED(TextureBinding binding(gbuffer.get()))
-            //{
-            //    // Draw the lights
-            //    drawLights(deltaTime);
-            //}
+            glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind the default framebuffer
 
-            // Bind the framebuffer you want to read from
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, gbuffer->frameBuffer);
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Bind the default framebuffer (or another framebuffer) to write to
-            glBlitFramebuffer(0, 0, screenSize.x, screenSize.y, 0, 0, screenSize.x, screenSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST); // Copy the content of the framebuffer to the default framebuffer
-            glBindTexture(GL_TEXTURE_2D, (int)ReservedTextureSlot::ScreenTexture); // Bind the texture you want to write to
-            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, screenSize.x, screenSize.y, 0); // Copy the framebuffer content to the texture
+            glDrawBuffers(4, gbuffer->attachments);
+            GLfloat clearValues[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+            glClearBufferfv(GL_COLOR, 0, clearValues);
+            glClearBufferfv(GL_COLOR, 1, clearValues);
+            glClearBufferfv(GL_COLOR, 2, clearValues);
+            glClearBufferfv(GL_COLOR, 3, clearValues);
+
+            // Bind GBuffer textures
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gPosition);
+            glBindTexture(GL_TEXTURE_2D, gbuffer->gPosition);
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gNormal);
+            glBindTexture(GL_TEXTURE_2D, gbuffer->gNormal);
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gAlbedo);
+            glBindTexture(GL_TEXTURE_2D, gbuffer->gAlbedo);
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gMaterial);
+            glBindTexture(GL_TEXTURE_2D, gbuffer->gMaterial);
 
             drawQuad();
+
+            // Unbind GBuffer textures
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gPosition);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gNormal);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gAlbedo);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gMaterial);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
 

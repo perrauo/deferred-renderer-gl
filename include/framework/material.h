@@ -31,6 +31,8 @@ namespace Experiment::Framework
             constexpr char material[] = "material";
             constexpr char textureSampler[] = "textureSampler";
             constexpr char screenSize[] = "screenSize";
+
+            constexpr char albedoColor[] = "albedoColor";
         }
         namespace Attributes
         {
@@ -151,15 +153,16 @@ namespace Experiment::Framework
     // MaterialInstance
     // -------------------
 
-    class EXPERIMENT_FRAMEWORK_API MaterialInstance : public IMaterial
+    class EXPERIMENT_FRAMEWORK_API MaterialProxy
     {
     public:
-        MaterialInstance(const std::shared_ptr<Material>& material) : _material(material) {}
 
-        ~MaterialInstance() = default;
+        MaterialType Type = MaterialType::Invalid;
 
-        MaterialInstance(const MaterialInstance&) = delete;
-        MaterialInstance& operator=(const MaterialInstance&) = delete;
+        ~MaterialProxy() = default;
+
+        MaterialProxy(const MaterialProxy&) = delete;
+        MaterialProxy& operator=(const MaterialProxy&) = delete;
         
         void setUniform(const std::string& name, float value);
 
@@ -177,27 +180,9 @@ namespace Experiment::Framework
 
         void setUniform(const std::string& name, const std::shared_ptr<Texture>& value);
 
-        void bind() override;
+        void bind();
 
-        void unbind() override;
-
-        GLuint getProgramId() const override
-        {
-            if (auto material = _material)
-            {
-                return material->getProgramId();
-            }
-            return GLuint(-1);
-        }
-
-        std::string getName() const override
-        {
-            if (auto material = _material)
-            {
-                return material->getName();
-            }
-            return "";
-        }
+        void unbind();
 
     private:
         std::shared_ptr<Material> _material;

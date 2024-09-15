@@ -13,12 +13,8 @@ namespace Experiment::Framework
         // -------------------
         // GBufferResource
         // -------------------
-        Resource::Resource(
-        std::unique_ptr<Material>&& material
-        , const glm::ivec2& dimensions       
-        )
-        : material(std::move(material))
-        , dimensions(dimensions)
+        Resource::Resource(const glm::ivec2& dimensions)
+        : dimensions(dimensions)
         {
             glGenFramebuffers(1, &frameBuffer);
             glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);

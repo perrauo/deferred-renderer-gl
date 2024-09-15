@@ -2,14 +2,13 @@
 
 layout(location = 0) out vec4 outColor;
 
-layout(set = 0, binding = 0) uniform sampler2D gPosition;
-layout(set = 0, binding = 1) uniform sampler2D gNormal;
-layout(set = 0, binding = 2) uniform sampler2D gAlbedo;
-layout(set = 0, binding = 3) uniform sampler2D gMaterial;
+layout(binding = 0) uniform sampler2D gPosition;
+layout(binding = 1) uniform sampler2D gNormal;
+layout(binding = 2) uniform sampler2D gAlbedo;
+layout(binding = 3) uniform sampler2D gMaterial;
 
 uniform vec3 lightPosition;
 uniform vec3 lightColor;
-
 
 vec3 phongLighting(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightCol) {
     vec3 lightDir = normalize(lightPos - fragPos);

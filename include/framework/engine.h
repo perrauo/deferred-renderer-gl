@@ -56,12 +56,13 @@ namespace Experiment::Framework
         glm::mat4 projectionMatrix = Math::Identity4x4;
         // TODO separate in a renderer class
         std::stack<GLint> programStack;
-        std::shared_ptr<GBuffer::Resource> gbuffer;
 
         std::unique_ptr<IGame> game;
         std::shared_ptr<Material> pointLightMaterial;
+
         std::shared_ptr<Material> gbufferMaterial;
         std::shared_ptr<Material> lightMaterial;
+        std::shared_ptr<GBuffer::Resource> gbuffer;
 
         boost::json::value config;
 

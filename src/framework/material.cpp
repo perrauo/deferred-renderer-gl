@@ -211,50 +211,50 @@ namespace Experiment::Framework
     }
 
     // -------------------
-    // MaterialInstance
+    // MaterialProxy
     // -------------------
 
-    void MaterialInstance::setUniform(const std::string& name, float value)
+    void MaterialProxy::setUniform(const std::string& name, float value)
     {
         _floatUniforms[name] = value;
     }
 
-    void MaterialInstance::setUniform(const std::string& name, int value)
+    void MaterialProxy::setUniform(const std::string& name, int value)
     {
         _intUniforms[name] = value;
     }
 
-    void MaterialInstance::setUniform(const std::string& name, ReservedTextureSlot value)
+    void MaterialProxy::setUniform(const std::string& name, ReservedTextureSlot value)
     {
         _intUniforms[name] = (int)value;
     }
 
-    void MaterialInstance::setUniform(const std::string& name, const std::shared_ptr<Texture>& texture)
+    void MaterialProxy::setUniform(const std::string& name, const std::shared_ptr<Texture>& texture)
     {
         _textureUniforms[name] = texture;
     }
 
-    void MaterialInstance::setUniform(const std::string& name, const glm::vec2& value)
+    void MaterialProxy::setUniform(const std::string& name, const glm::vec2& value)
     {
         _vec2Uniforms[name] = value;
     }
 
-    void MaterialInstance::setUniform(const std::string& name, const glm::vec3& value)
+    void MaterialProxy::setUniform(const std::string& name, const glm::vec3& value)
     {
         _vec3Uniforms[name] = value;
     }
 
-    void MaterialInstance::setUniform(const std::string& name, const glm::vec4& value)
+    void MaterialProxy::setUniform(const std::string& name, const glm::vec4& value)
     {
         _vec4Uniforms[name] = value;
     }
 
-    void MaterialInstance::setUniform(const std::string& name, const glm::mat4& value)
+    void MaterialProxy::setUniform(const std::string& name, const glm::mat4& value)
     {
         _mat4Uniforms[name] = value;
     }
 
-    void MaterialInstance::unbind()
+    void MaterialProxy::unbind()
     {
         if (auto material = _material)
         {
@@ -262,7 +262,7 @@ namespace Experiment::Framework
         }
     }
 
-    void MaterialInstance::bind()
+    void MaterialProxy::bind()
     {        
         if (auto material = _material)
         {

@@ -124,14 +124,13 @@ namespace Experiment::Framework
 
         EXP_IF(
         mesh
-        , auto gbuffer = engine.gbuffer.get()
-        , auto material = gbuffer->material.get()
+        , auto gbufferMaterial = engine.gbufferMaterial.get()
         )
         {            
-            material->setUniform(Uniforms::model, entity.transform.getMatrix());
-            material->setUniform(Uniforms::view, engine.viewMatrix);
-            material->setUniform(Uniforms::projection, engine.projectionMatrix);
-            material->setUniform(Uniforms::material, (int)material);
+            gbufferMaterial->setUniform(Uniforms::model, entity.transform.getMatrix());
+            gbufferMaterial->setUniform(Uniforms::view, engine.viewMatrix);
+            gbufferMaterial->setUniform(Uniforms::projection, engine.projectionMatrix);
+            gbufferMaterial->setUniform(Uniforms::material, (int)material);
             
             // Bind the VAO of the mesh and draw it
             // Draw the mesh
