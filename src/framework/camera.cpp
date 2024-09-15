@@ -2,6 +2,7 @@
 #include "framework/engine.h"
 #include "framework/renderer.h"
 #include "framework/material.h"
+#include "framework/preprocessor.h"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -9,7 +10,7 @@
 #include <glm/gtc/quaternion.hpp>  // for glm::quat
 #include <glm/gtx/quaternion.hpp>  // for glm::rotate (quaternion)
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     void CameraComponent::start(Framework::Engine& engine, Framework::Entity& entity)
     {

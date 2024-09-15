@@ -17,9 +17,9 @@
 #include <iterator>
 #include <boost/json.hpp>
 
-namespace GhostGame
+namespace Experiment::Demo
 {
-    void Game::start(Framework::Engine& engine)
+    void DemoGame::start(Framework::Engine& engine)
     {
         using namespace Framework;
 
@@ -49,14 +49,15 @@ namespace GhostGame
             if (entry.path().extension() == ".dae") {
                 ModelLoadContext loadContext{ .engine = engine };
                 loadContext.baseTexturePath = "game/environment";
-                loadContext.baseGeomMaterial = engine.lambertGeomMaterial;
-                loadContext.baseLightMaterial = engine.lambertLightMaterial;
+                //loadContext.baseGeomMaterial = engine.lambertGeomMaterial;
+                //loadContext.baseLightMaterial = engine.lambertLightMaterial;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {
                     auto& entity = engine.spawnEntity();
                     auto& meshComp = meshSystem.addComponent(entity);
                     meshComp.mesh = loadedMesh.mesh;
+                    meshComp.material = MaterialType::Lambert;
                     meshComp.geomMaterial = loadedMesh.geomMaterial;
                     meshComp.lightMaterial = loadedMesh.lightMaterial;
                     entity.transform = loadedMesh.transform;
@@ -69,8 +70,8 @@ namespace GhostGame
             if (entry.path().extension() == ".dae") {
                 ModelLoadContext loadContext{ .engine = engine };
                 loadContext.baseTexturePath = "game/entities/enemy";
-                loadContext.baseGeomMaterial = engine.lambertGeomMaterial;
-                loadContext.baseLightMaterial = engine.lambertLightMaterial;
+                //loadContext.baseGeomMaterial = engine.lambertGeomMaterial;
+                //loadContext.baseLightMaterial = engine.lambertLightMaterial;
                 loadModel(entry.path().string(), loadContext);
                 for (auto& [_, loadedMesh] : loadContext.meshes)
                 {
@@ -83,7 +84,7 @@ namespace GhostGame
         }
     }
 
-    void Game::update(Framework::Engine& engine, float deltaTime)
+    void DemoGame::update(Framework::Engine& engine, float deltaTime)
     {
         using namespace Framework;
 
@@ -120,7 +121,7 @@ namespace GhostGame
     }
 
 
-    void Game::draw(Framework::Engine& engine, float deltaTime)
+    void DemoGame::draw(Framework::Engine& engine, float deltaTime)
     {
     }
 }

@@ -20,7 +20,7 @@ struct aiNode;
 struct aiScene;
 struct aiMesh;
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     class Engine;
     class Mesh;
@@ -29,7 +29,7 @@ namespace GhostGame::Framework
     class MaterialInstance;
     class Texture;
 
-    struct GHOSTGAME_FRAMEWORK_API ModelLoadMesh
+    struct EXPERIMENT_FRAMEWORK_API ModelLoadMesh
     {
         std::shared_ptr<Mesh> mesh;
 
@@ -46,14 +46,14 @@ namespace GhostGame::Framework
         Transform transform;
     };
 
-    struct GHOSTGAME_FRAMEWORK_API ModelLoadMaterial
+    struct EXPERIMENT_FRAMEWORK_API ModelLoadMaterial
     {
         std::shared_ptr<MaterialInstance> geomMaterial;
 
         std::shared_ptr<MaterialInstance> lightMaterial;
     };
 
-    struct GHOSTGAME_FRAMEWORK_API ModelLoadContext
+    struct EXPERIMENT_FRAMEWORK_API ModelLoadContext
     {
         Engine& engine;
         std::shared_ptr<Material> baseGeomMaterial;
@@ -64,5 +64,5 @@ namespace GhostGame::Framework
         std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
     };
 
-    GHOSTGAME_FRAMEWORK_API void loadModel(const std::string& path, ModelLoadContext& loadContext);
+    EXPERIMENT_FRAMEWORK_API void loadModel(const std::string& path, ModelLoadContext& loadContext);
 }

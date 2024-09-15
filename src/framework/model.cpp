@@ -18,7 +18,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
 
     // -------------------

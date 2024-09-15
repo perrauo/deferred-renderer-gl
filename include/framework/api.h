@@ -1,7 +1,7 @@
 #pragma once
 
-#ifdef GHOSTGAME_FRAMEWORK_EXPORTS
-#define GHOSTGAME_FRAMEWORK_API __declspec(dllexport)
+#ifdef EXPERIMENT_FRAMEWORK_EXPORTS
+#define EXPERIMENT_FRAMEWORK_API __declspec(dllexport)
 #else
-#define GHOSTGAME_FRAMEWORK_API __declspec(dllimport)
+#define EXPERIMENT_FRAMEWORK_API __declspec(dllimport)
 #endif

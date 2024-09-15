@@ -3,6 +3,7 @@
 #include "framework/renderer.h"
 #include "framework/game.h"
 #include "framework/light.h"
+#include "framework/preprocessor.h"
 
 #include "GLFW/glfw3.h"
 
@@ -15,7 +16,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {    
     Engine::Engine()
     {
@@ -135,9 +136,9 @@ namespace GhostGame::Framework
         }
         // material setup before the game starts
         pointLightMaterial = std::make_unique<Material>(Lights::PointLight::name, RES("framework/shaders/pointLight"));
-        lambertGeomMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertGeom"));
-        lambertLightMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertLight"));
-        finalPassMaterial = std::make_unique<Material>(DeferredShading::FinalPass::name, RES("framework/shaders/finalPass"));
+        //lambertGeomMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertGeom"));
+        //lambertLightMaterial = std::make_unique<Material>(Materials::Lambert::name, RES("framework/shaders/lambertLight"));
+        //finalPassMaterial = std::make_unique<Material>(DeferredShading::FinalPass::name, RES("framework/shaders/finalPass"));
         return 0;
     }
 
@@ -145,8 +146,7 @@ namespace GhostGame::Framework
     {
         this->game = std::move(game);
         programStack.push(0);
-        gbuffer = std::make_unique<GBuffer>(screenSize.x, screenSize.y);
-        gbuffer->init();
+        gbuffer = std::make_shared<GBuffer::Resource>(std::make_unique<Material>(GBuffer::name, RES("framework/shaders/gbuffer")), screenSize);
         this->game->start(*this);
     }
 
@@ -197,32 +197,30 @@ namespace GhostGame::Framework
     {
         using namespace DeferredShading;
 
-        // Bind the GBuffer
-        gbuffer->bind();
+        // Bind the GBuffer        
+        using namespace GBuffer;
+        
+        EXP_SCOPED(FramebufferBinding binding(gbuffer.get()))
+        {
 
-        // Clear the color and depth buffers
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            // Clear the color and depth buffers
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LESS);
 
-        // Draw the entities
-        drawEntities(deltaTime);
+            // Draw the entities
+            drawEntities(deltaTime);
 
-        // Unbind the GBuffer
-        gbuffer->unbind();
-
-        // Bind the GBuffer textures
-        gbuffer->bindTextures();
-
-        // Draw the lights
-        drawLights(deltaTime);
-
-        // Unbind the GBuffer textures
-        gbuffer->unbindTextures();
+        }
+        EXP_SCOPED(TextureBinding binding(gbuffer.get()))
+        {
+            // Draw the lights
+            drawLights(deltaTime);
+        }
 
         // you don't need to unbind the GBuffer's framebuffer when drawing the light pass, since you're reusing the GBuffer's textures.
-        finalPassMaterial->unbind(*this);
+        //finalPassMaterial->unbind(*this);
 
         // Bind the framebuffer you want to read from
         glBindFramebuffer(GL_READ_FRAMEBUFFER, gbuffer->frameBuffer);
@@ -231,11 +229,11 @@ namespace GhostGame::Framework
         glBindTexture(GL_TEXTURE_2D, (int)ReservedTextureSlot::ScreenTexture); // Bind the texture you want to write to
         glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, screenSize.x, screenSize.y, 0); // Copy the framebuffer content to the texture
 
-        finalPassMaterial->setUniform(Uniforms::screenTexture, ReservedTextureSlot::ScreenTexture);
-        finalPassMaterial->bind(*this);
+        //finalPassMaterial->setUniform(Uniforms::screenTexture, ReservedTextureSlot::ScreenTexture);
+        //finalPassMaterial->bind(*this);        
 
         // Draw the quad
-        gbuffer->drawQuad();
+        drawQuad();
 
     }
 

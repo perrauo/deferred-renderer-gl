@@ -8,21 +8,21 @@
 #include <unordered_map>
 #include <boost/json.hpp>
 
-namespace GhostGame
+namespace Experiment::Framework
 {
-    namespace Framework
-    {
-        using EntityId = int;
-        class Mesh;
-        class MeshComponent;
-        class Material;
-        class MaterialInstance;
-    }
+    using EntityId = int;
+    class Mesh;
+    class MeshComponent;
+    class Material;
+    class MaterialInstance;
+}
 
+namespace Experiment::Demo
+{
     class EnemyComponent;
     class PlayerComponent;
 
-    class Game : public Framework::IGame
+    class DemoGame : public Framework::IGame
     {
 
     private:
@@ -38,9 +38,9 @@ namespace GhostGame
 
         boost::json::value config;
 
-        Game() = default;
+        DemoGame() = default;
 
-        ~Game() = default;
+        ~DemoGame() = default;
 
         void start(Framework::Engine& engine) override;
 

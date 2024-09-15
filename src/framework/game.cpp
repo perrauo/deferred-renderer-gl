@@ -1,5 +1,5 @@
 #include "framework/game.h"
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
 }

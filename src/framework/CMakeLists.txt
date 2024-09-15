@@ -1,12 +1,14 @@
-set(TARGET_NAME "GhostGameFramework")
+set(TARGET_NAME "ExperimentFramework")
 
-# Add a definition for GHOSTGAME_FRAMEWORK_EXPORTS when building this library
-add_definitions(-DGHOSTGAME_FRAMEWORK_EXPORTS)
+# Add a definition for EXPERIMENT_FRAMEWORK_EXPORTS when building this library
+add_definitions(-DEXPERIMENT_FRAMEWORK_EXPORTS)
 
 file(GLOB_RECURSE SHADER_FILES
     ${CMAKE_SOURCE_DIR}/resources/framework/*.vert
     ${CMAKE_SOURCE_DIR}/resources/framework/*.frag
 )
+exclude_hidden_dirs("${SHADER_FILES}" SHADER_FILES)
+
 file(GLOB_RECURSE CONFIG_FILES
     ${CMAKE_SOURCE_DIR}/resources/framework/*.json
 )

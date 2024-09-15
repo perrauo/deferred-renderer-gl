@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
 
 }

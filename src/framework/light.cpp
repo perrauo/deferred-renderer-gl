@@ -9,7 +9,7 @@
 #include <fstream>
 #include <boost/json.hpp>
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     void PointLightComponent::start(Engine& engine, Entity& entity)
     {

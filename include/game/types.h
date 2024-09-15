@@ -2,7 +2,7 @@
 
 #include "framework/entity.h"
 
-namespace GhostGame
+namespace Experiment::Demo
 {
     class Entity;
 

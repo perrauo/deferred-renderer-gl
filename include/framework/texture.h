@@ -8,12 +8,12 @@
 
 #include <GL/glew.h>
 
-namespace GhostGame::Framework 
+namespace Experiment::Framework 
 {
     // -------------------
     // Texture
     // -------------------
-    class GHOSTGAME_FRAMEWORK_API Texture {
+    class EXPERIMENT_FRAMEWORK_API Texture {
     private:
         std::string _path;
         GLuint _textureID;

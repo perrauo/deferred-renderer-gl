@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp> // For glm::vec3
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     namespace Lights
     {
@@ -30,7 +30,7 @@ namespace GhostGame::Framework
     class Material;
     class MaterialInstance;
 
-    class GHOSTGAME_FRAMEWORK_API PointLightComponent : public Component {
+    class EXPERIMENT_FRAMEWORK_API PointLightComponent : public Component {
     public:
         glm::vec3 color;
         float intensity;

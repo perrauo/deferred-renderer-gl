@@ -10,10 +10,10 @@
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
    
-    class GHOSTGAME_FRAMEWORK_API CameraComponent : public Component {
+    class EXPERIMENT_FRAMEWORK_API CameraComponent : public Component {
     public:
 
         float pitch = 0.0f; // Up and down

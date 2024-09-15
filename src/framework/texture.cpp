@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <string>
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     // -------------------
     // Texture

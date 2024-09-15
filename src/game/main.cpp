@@ -7,18 +7,16 @@
 
 int main()
 {
-    using namespace GhostGame;
-    using namespace GhostGame::Framework;
+    using namespace Experiment::Demo;
+    using namespace Experiment::Framework;
   
-
     // Create an instance of the Engine class    
     Engine engine;
     
     // Just opens the window
     engine.setup();
 
-    std::unique_ptr<Game> game = std::make_unique<Game>();
-    engine.startGame(std::move(game));    
+    engine.startGame(std::make_unique<DemoGame>());
 
     engine.loop();
 

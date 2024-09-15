@@ -12,12 +12,12 @@
 #endif
 
 #include <regex>
+#include "framework/preprocessor.h"
 
 #define NAMEOF(x) #x
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
-
     constexpr GLfloat cubeVertices[] = {
     -1.0f, -1.0f, -1.0f,
     1.0f, -1.0f, -1.0f, 
@@ -94,4 +94,4 @@ namespace GhostGame::Framework
     }
 }
 
-#define RES(relativePath) ::GhostGame::Framework::getResPath(relativePath)
+#define RES(relativePath) ::Experiment::Framework::getResPath(relativePath)

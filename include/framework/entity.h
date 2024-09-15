@@ -6,12 +6,12 @@
 #include <memory>
 #include <unordered_map>
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     using EntityId = int;
     class Engine;
 
-    class GHOSTGAME_FRAMEWORK_API Entity {
+    class EXPERIMENT_FRAMEWORK_API Entity {
     public:
         
         EntityId id = -1;
@@ -34,7 +34,7 @@ namespace GhostGame::Framework
         }
     };
 
-    class GHOSTGAME_FRAMEWORK_API Component {
+    class EXPERIMENT_FRAMEWORK_API Component {
     public:
         virtual void start(Engine& engine, Entity& entity) {}
         virtual void update(Engine& engine, Entity& entity, float deltaTime) {}

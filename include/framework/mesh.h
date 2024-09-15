@@ -18,17 +18,18 @@ struct aiNode;
 struct aiScene;
 struct aiMesh;
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     class Material;
     class MaterialInstance;
     class Engine;
+    enum class MaterialType : int;
 
     // -------------------
     // Mesh
     // -------------------
 
-    class GHOSTGAME_FRAMEWORK_API Mesh {
+    class EXPERIMENT_FRAMEWORK_API Mesh {
 
         GLuint VAO = 0
         // normals
@@ -68,10 +69,11 @@ namespace GhostGame::Framework
     // MeshComponent
     // -------------------
 
-    class GHOSTGAME_FRAMEWORK_API MeshComponent : public Component
+    class EXPERIMENT_FRAMEWORK_API MeshComponent : public Component
     {
     public:
         std::shared_ptr<Mesh> mesh;
+        MaterialType material = (MaterialType)-1;
         std::shared_ptr<MaterialInstance> geomMaterial;
         std::shared_ptr<MaterialInstance> lightMaterial;
 

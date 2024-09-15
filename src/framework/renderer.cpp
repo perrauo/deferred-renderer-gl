@@ -6,77 +6,19 @@
 #include <string>
 #include <iostream>
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
-    // -------------------
-    // GBuffer
-    // -------------------
-    GBuffer::GBuffer(int screenWidth, int screenHeight)
-    : screenWidth(screenWidth)
-    , screenHeight(screenHeight)
+    namespace GBuffer
     {
-    }
-
-    GBuffer::~GBuffer()
-    {
-        unbind();
-        deinit();
-    }
-
-    void GBuffer::unbind()
-    {
-        if (_isBound)
-        {
-            unbindTextures();
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            _isBound = false;
-        }
-    }
-
-    void GBuffer::bind()
-    {
-        if (!_isBound)
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-
-            _isBound = true;
-        }
-    }
-
-    void GBuffer::bindTextures()
-    {
-        if (!_areTexturesBound)
-        {
-            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gPosition);
-            glBindTexture(GL_TEXTURE_2D, gPosition);
-            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gNormal);
-            glBindTexture(GL_TEXTURE_2D, gNormal);
-            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gAlbedo);
-            glBindTexture(GL_TEXTURE_2D, gAlbedo);
-
-            _areTexturesBound = true;
-        }
-    }
-
-    void GBuffer::unbindTextures()
-    {
-        if (_areTexturesBound)
-        {
-            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gPosition);
-            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gPosition
-            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gNormal);
-            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gNormal
-            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gAlbedo);
-            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gAlbedo
-
-            _areTexturesBound = false;
-        }
-    }
-
-
-    void GBuffer::init()
-    {
-        if (!_isInit)
+        // -------------------
+        // GBufferResource
+        // -------------------
+        Resource::Resource(
+        std::unique_ptr<Material>&& material
+        , const glm::ivec2& dimensions       
+        )
+        : material(material)
+        , dimensions(dimensions)
         {
             glGenFramebuffers(1, &frameBuffer);
             glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
@@ -112,33 +54,52 @@ namespace GhostGame::Framework
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
                 std::cout << "Framebuffer not complete!" << std::endl;
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            _isInit = true;
         }
-    }
 
-    void GBuffer::deinit()
-    {
-        if (_isInit)
+        Resource::~Resource()
         {
             glDeleteTextures(1, &gPosition);
             glDeleteTextures(1, &gNormal);
             glDeleteTextures(1, &gAlbedo);
             glDeleteRenderbuffers(1, &rboDepth);
             glDeleteFramebuffers(1, &frameBuffer);
+        }
 
-            _isInit = false;
+
+        FramebufferBinding::FramebufferBinding(const Resource* resource)
+            : _resource(resource)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, resource->frameBuffer);
+        }
+
+        FramebufferBinding::~FramebufferBinding()
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+
+        TextureBinding::TextureBinding(const Resource* resource)
+        {
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gPosition);
+            glBindTexture(GL_TEXTURE_2D, resource->gPosition);
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gNormal);
+            glBindTexture(GL_TEXTURE_2D, resource->gNormal);
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gAlbedo);
+            glBindTexture(GL_TEXTURE_2D, resource->gAlbedo);
+        }
+
+        TextureBinding::~TextureBinding()
+        {
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gPosition);
+            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gPosition
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gNormal);
+            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gNormal
+            glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gAlbedo);
+            glBindTexture(GL_TEXTURE_2D, 0); // Unbind gAlbedo
         }
     }
 
-    //void GBuffer::blitToDefaultFramebuffer()
-    //{
-    //    glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
-    //    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
-    //    glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    //}
-
     // We are correctly drawing a quad filling the screen. This is fine
-    void GBuffer::drawQuad()
+    void drawQuad()
     {
         static GLuint quadVAO = 0, quadVBO;
         if (!quadVAO)
@@ -173,6 +134,4 @@ namespace GhostGame::Framework
         glDisableVertexAttribArray(0); // disable aPos
         glBindVertexArray(0);
     }
-
-
 }

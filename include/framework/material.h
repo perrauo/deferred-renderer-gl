@@ -14,7 +14,7 @@
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     class Texture;
     class Engine;
@@ -65,12 +65,19 @@ namespace GhostGame::Framework
         }
     }
 
+    enum class MaterialType : int {
+        Invalid = -1,
+        Lambert,
+        Phong,
+    };
+
+
 
     // -------------------
     // IMaterial
     // -------------------
 
-    class GHOSTGAME_FRAMEWORK_API IMaterial 
+    class EXPERIMENT_FRAMEWORK_API IMaterial 
     {
     public:
         
@@ -88,7 +95,7 @@ namespace GhostGame::Framework
     // Material
     // -------------------
 
-    class GHOSTGAME_FRAMEWORK_API Material : public IMaterial
+    class EXPERIMENT_FRAMEWORK_API Material : public IMaterial
     {
     private:
         GLuint _programId;
@@ -141,7 +148,7 @@ namespace GhostGame::Framework
     // MaterialInstance
     // -------------------
 
-    class GHOSTGAME_FRAMEWORK_API MaterialInstance : public IMaterial
+    class EXPERIMENT_FRAMEWORK_API MaterialInstance : public IMaterial
     {
     public:
         MaterialInstance(const std::shared_ptr<Material>& material) : _material(material) {}

@@ -2,13 +2,14 @@
 
 #include "framework/entity.h"
 
-namespace GhostGame
+namespace Framework::Framework
 {
-    namespace Framework
-    {
-        class CameraComponent;
-        using EntityId = int;
-    }
+    class CameraComponent;
+    using EntityId = int;
+}
+
+namespace Experiment::Demo
+{
     // -------------------
     // PlayerComponent
     // -------------------

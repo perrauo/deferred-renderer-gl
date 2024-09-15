@@ -2,11 +2,11 @@
 
 #include "framework/api.h"
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     class Engine;
 
-    class GHOSTGAME_FRAMEWORK_API IGame {
+    class EXPERIMENT_FRAMEWORK_API IGame {
     public:
         virtual void start(Engine& engine) {}
         virtual void update(Engine& engine, float deltaTime) {}

@@ -4,17 +4,19 @@
 #include "framework/engine.h"
 #include "framework/camera.h"
 
-namespace GhostGame
-{
+namespace Experiment::Demo
+{   
+    using namespace Framework;
+
     // -------------------
     // PlayerBehavior
     // -------------------
 
-    void PlayerComponent::start(Framework::Engine& engine, Framework::Entity& entity)
+    void PlayerComponent::start(Engine& engine, Entity& entity)
     {
     }
 
-    void PlayerComponent::update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime) {
+    void PlayerComponent::update(Engine& engine, Entity& entity, float deltaTime) {
         glm::vec2 cursorPos = engine.getCursorPos();
 
         // Calculate the offset from the last frame
@@ -33,7 +35,7 @@ namespace GhostGame
         if (camera.pitch < -89.0f) camera.pitch = -89.0f;
     }
 
-    void PlayerComponent::draw(Framework::Engine& engine, Framework::Entity& entity, float deltaTime)
+    void PlayerComponent::draw(Engine& engine, Entity& entity, float deltaTime)
     { 
     }
 }

@@ -11,7 +11,7 @@
 #include <string>
 #include <stack>
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     class Shader;
     class Material;
@@ -43,36 +43,43 @@ namespace GhostGame::Framework
         gAlbedo
     };
 
-    class GHOSTGAME_FRAMEWORK_API GBuffer {
-    
-        bool _isBound = false;
-        bool _areTexturesBound = false;
-        bool _isInit = false;
-    
-    public:
-        unsigned int frameBuffer = 0;
-        unsigned int gPosition = 0, gNormal = 0, gAlbedo = 0;
-        unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-        unsigned int rboDepth = 0;
+    namespace GBuffer
+    {
+        constexpr char name[] = NAMEOF(GBuffer);
 
-        int screenWidth = 0;
-        int screenHeight = 0;
-        
-        GBuffer(int screenWidth, int screenHeight);
-        ~GBuffer();
-        GBuffer(GBuffer&&) = default;
-        GBuffer(const GBuffer&) = delete;
-        GBuffer& operator=(const GBuffer&) = delete;
+        class EXPERIMENT_FRAMEWORK_API Resource {
+        public:
+            unsigned int frameBuffer = 0;
+            unsigned int gPosition = 0, gNormal = 0, gAlbedo = 0;
+            unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+            unsigned int rboDepth = 0;
 
-        void bind();
-        void unbind();
-        void bindTextures();
-        void unbindTextures();
-        void init();
-        void deinit();
-        //void blitToDefaultFramebuffer();
-        void drawQuad();
-    };
-        
-    void drawQuad(Engine& engine);
+            glm::ivec2 dimensions;
+            std::unique_ptr<Material> material;
+
+            Resource(std::unique_ptr<Material>&& material, const glm::ivec2& dimensions);
+            ~Resource();
+            Resource(Resource&&) = default;
+            Resource(const Resource&) = delete;
+            Resource& operator=(const Resource&) = delete;
+        };
+
+        class EXPERIMENT_FRAMEWORK_API FramebufferBinding
+        {
+            const Resource* _resource = nullptr;
+        public:
+            FramebufferBinding(const Resource* resource);
+            ~FramebufferBinding();
+        };
+
+        class EXPERIMENT_FRAMEWORK_API TextureBinding
+        {
+            const Resource* _resource = nullptr;
+        public:
+            TextureBinding(const Resource* resource);
+            ~TextureBinding();
+        };
+    }
+
+    void drawQuad();
 }

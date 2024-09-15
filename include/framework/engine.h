@@ -30,11 +30,11 @@
 #include <fstream>
 #include <boost/json.hpp>
 
-namespace GhostGame::Framework
+namespace Experiment::Framework
 {
     using EntityId = int;
 
-    class GHOSTGAME_FRAMEWORK_API Engine {
+    class EXPERIMENT_FRAMEWORK_API Engine {
     private:
 
         std::unordered_map<EntityId, Entity> _entities;
@@ -56,13 +56,13 @@ namespace GhostGame::Framework
         glm::mat4 projectionMatrix = Math::Identity4x4;
         // TODO separate in a renderer class
         std::stack<GLint> programStack;
-        std::unique_ptr<GBuffer> gbuffer;
+        std::shared_ptr<GBuffer::Resource> gbuffer;
 
         std::unique_ptr<IGame> game;
         std::shared_ptr<Material> pointLightMaterial;
-        std::shared_ptr<Material> lambertGeomMaterial;
-        std::shared_ptr<Material> lambertLightMaterial;
-        std::shared_ptr<Material> finalPassMaterial;
+        std::shared_ptr<Material> gbufferMaterial;
+        std::shared_ptr<Material> lightMaterial;
+
         boost::json::value config;
 
         Engine();
