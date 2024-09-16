@@ -33,18 +33,28 @@ namespace Experiment::Demo
         _enemySpawnDistance = { spawnDistance.at("min").as_double(), spawnDistance.at("max").as_double() };
         _pinkTexture = std::make_shared<Texture>("");
 
-        auto& lightEntity = engine.spawnEntity();
-        auto& lightSystem = engine.addSystem<PointLightComponent>();
-        lightSystem.addComponent(lightEntity);
+        auto& directionalLights = engine.addSystem<DirectionalLightSystem>();
+        auto& directionalLightEntity = engine.spawnEntity();
+        directionalLightEntity.transform.position = glm::vec3(0.0f, 5.0f, 5.0f);
+        directionalLightEntity.transform.rotation = glm::quat(glm::vec3(-glm::radians(45.0f), 0.0f, 0.0f));
+        directionalLightEntity.transform.scale = glm::vec3(1.0f);
+        auto& directionalLight = directionalLights.addComponent(directionalLightEntity);
+        directionalLight.type = LightType::Directional;
+
+        auto& pointLights = engine.addSystem<PointLightSystem>();
+        auto& pointLightEntity = engine.spawnEntity();
+        pointLightEntity.transform.position = glm::vec3(0, 0, 0);
+        auto& pointLight = pointLights.addComponent(pointLightEntity);
+        pointLight.type = LightType::Point;
 
         _playerId = engine.spawnEntity();
-        auto& playerSystem = engine.addSystem<PlayerComponent>();
-        auto& cameraSystem = engine.addSystem<CameraComponent>();
+        auto& playerSystem = engine.addSimpleSystem<PlayerComponent>();
+        auto& cameraSystem = engine.addSimpleSystem<CameraComponent>();
         playerSystem.addComponent(_playerId);
         cameraSystem.addComponent(_playerId);
         
-        auto& meshSystem = engine.addSystem<MeshComponent>();
-        engine.addSystem<EnemyComponent>();       
+        auto& meshSystem = engine.addSimpleSystem<MeshComponent>();
+        engine.addSimpleSystem<EnemyComponent>();
 
         for (const auto& entry : std::filesystem::directory_iterator(RES("game/environment")))
         {
@@ -87,8 +97,8 @@ namespace Experiment::Demo
     {
         using namespace Framework;
 
-        auto& enemySystem = engine.getSystem<EnemyComponent>();
-        auto& meshSystem = engine.getSystem<MeshComponent>();
+        auto& enemySystem = engine.getSimpleSystem<EnemyComponent>();
+        auto& meshSystem = engine.getSimpleSystem<MeshComponent>();
 
         static auto lastSpawnTime = std::chrono::high_resolution_clock::now();
         auto now = std::chrono::high_resolution_clock::now();
@@ -110,7 +120,7 @@ namespace Experiment::Demo
             glm::vec3 direction = glm::normalize(player.transform.position - spawnPosition);
             entity.transform.rotation = glm::quatLookAt(direction, glm::vec3(0, 1, 0));
 
-            enemySystem.addComponent(entity);
+            auto& enemyComp = enemySystem.addComponent(entity);
             auto& meshComp = meshSystem.addComponent(entity);
             meshComp.mesh = _enemyMesh;
             meshComp.material = _enemyMaterial;

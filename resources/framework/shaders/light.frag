@@ -13,11 +13,19 @@ struct PointLight {
     float intensity;
 };
 
-uniform PointLight pointLights[10]; // Support up to 10 lights
-uniform int numPointLights;
+struct DirectionalLight {
+    vec3 direction;
+    vec3 color;
+    float intensity;
+};
 
-vec3 phongLighting(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightCol) {
-    vec3 lightDir = normalize(lightPos - fragPos);
+uniform int numPointLights;
+uniform PointLight pointLights[10]; // Support up to 10 lights
+
+uniform int numDirectionalLights;
+uniform DirectionalLight directionalLights[10]; // Support up to 10 directional lights
+
+vec3 phongLighting(vec3 normal, vec3 fragPos, vec3 lightDir, vec3 lightCol) {
     vec3 viewDir = normalize(-fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
@@ -27,8 +35,7 @@ vec3 phongLighting(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightCol) {
     return (diffuse + specular);
 }
 
-vec3 lambertLighting(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightCol) {
-    vec3 lightDir = normalize(lightPos - fragPos);
+vec3 lambertLighting(vec3 normal, vec3 lightDir, vec3 lightCol) {
     float diff = max(dot(normal, lightDir), 0.0);
     return lightCol * diff;
 }
@@ -40,11 +47,24 @@ void main() {
     int material = int(texture(gMaterial, gl_FragCoord.xy / vec2(textureSize(gMaterial, 0))).r);
 
     vec3 result = vec3(0.0);
+
+    // Point lights
     for (int i = 0; i < numPointLights; ++i) {
+        vec3 lightDir = normalize(pointLights[i].position - fragPos);
         if (material == 0) {
-            result += phongLighting(normal, fragPos, pointLights[i].position, pointLights[i].color * pointLights[i].intensity);
+            result += phongLighting(normal, fragPos, lightDir, pointLights[i].color * pointLights[i].intensity);
         } else {
-            result += lambertLighting(normal, fragPos, pointLights[i].position, pointLights[i].color * pointLights[i].intensity);
+            result += lambertLighting(normal, lightDir, pointLights[i].color * pointLights[i].intensity);
+        }
+    }
+
+    // Directional lights
+    for (int i = 0; i < numDirectionalLights; ++i) {
+        vec3 dirLightDir = normalize(-directionalLights[i].direction);
+        if (material == 0) {
+            result += phongLighting(normal, fragPos, dirLightDir, directionalLights[i].color * directionalLights[i].intensity);
+        } else {
+            result += lambertLighting(normal, dirLightDir, directionalLights[i].color * directionalLights[i].intensity);
         }
     }
 

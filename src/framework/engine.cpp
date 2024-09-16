@@ -167,9 +167,7 @@ namespace Experiment::Framework
 
         for (auto& [typeidx, sys] : _systems)
         {
-            for (auto& [id, entity] : _entities) {
-                sys->draw(*this, entity, deltaTime);
-            }
+            sys->draw(*this, entities, deltaTime);
         }
     }
 
@@ -180,9 +178,7 @@ namespace Experiment::Framework
         
         for (auto& [typeidx, sys] : _systems)
         {
-            for (auto& [id, entity] : _entities) {
-                sys->drawLight(*this, entity, deltaTime);
-            }
+            sys->drawLight(*this, entities, deltaTime);
         }
     }
 
@@ -190,9 +186,7 @@ namespace Experiment::Framework
     {
         for (auto& [typeidx, sys] : _systems)
         {
-            for (auto& [id, entity] : _entities) {
-                sys->endDrawLight(*this, entity, deltaTime);
-            }
+            sys->endDrawLight(*this, entities, deltaTime);
         }
     }
 
@@ -247,7 +241,9 @@ namespace Experiment::Framework
             lightMaterial->setUniform(Uniforms::gPosition, ReservedTextureSlot::gPosition);
             lightMaterial->setUniform(Uniforms::gNormal, ReservedTextureSlot::gNormal);
             lightMaterial->setUniform(Uniforms::gAlbedo, ReservedTextureSlot::gAlbedo);
-            lightMaterial->setUniform(Uniforms::gMaterial, ReservedTextureSlot::gMaterial);            
+            lightMaterial->setUniform(Uniforms::gMaterial, ReservedTextureSlot::gMaterial);
+
+            drawLights(deltaTime);
 
             drawQuad();
 
@@ -265,11 +261,11 @@ namespace Experiment::Framework
 
     void Engine::update(float deltaTime) {
 
-        std::vector<EntityId> entitiesToErase;
-        std::vector<EntityId> entitiesToStart;
+        std::vector<int> entitiesToErase;
+        std::vector<int> entitiesToStart;
 
 
-        for (auto& [id, entity] : _entities) {
+        for (auto& [id, entity] : entities) {
             if (!entity.hasStarted)
             {
                 for (auto& [typeidx, sys] : _systems)
@@ -282,8 +278,8 @@ namespace Experiment::Framework
      
         for (auto& [typeidx, sys] : _systems)
         {
-            for (auto& [id, entity] : _entities) {
-                sys->update(*this, entity, deltaTime);
+            for (auto& [id, entity] : entities) {
+                sys->update(*this, entities, deltaTime);
                 if (entity.markedForDeletion) {
                     entitiesToErase.push_back(id);
                 }
@@ -294,7 +290,7 @@ namespace Experiment::Framework
 
         for (auto id : entitiesToErase)
         {
-            _entities.erase(id);
+            entities.erase(id);
         }
     }
 
@@ -303,24 +299,24 @@ namespace Experiment::Framework
 
     Entity& Engine::spawnEntity()
     {
-        EntityId id = _nextEntityId++;
-        auto& ent = _entities[id];
+        int id = _nextEntityId++;
+        auto& ent = entities[id];
         ent.id = id;
         return ent;
     }
 
-    void Engine::despawnEntity(EntityId id)
+    void Engine::despawnEntity(int id)
     {
-        _entities.erase(id);
+        entities.erase(id);
     }
 
 
-    Entity& Engine::getEntity(EntityId id)
+    Entity& Engine::getEntity(int id)
     {
         static Entity sInvalidEntity;
 
-        auto it = _entities.find(id);
-        if (it != _entities.end()) {
+        auto it = entities.find(id);
+        if (it != entities.end()) {
             return it->second;
         }
         else {

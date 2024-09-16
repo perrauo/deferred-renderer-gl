@@ -10,7 +10,7 @@
 
 namespace Experiment::Framework
 {
-    using EntityId = int;
+    ;
     class Mesh;
     class MeshComponent;
     class Material;
@@ -28,7 +28,7 @@ namespace Experiment::Demo
 
     private:
 
-        Framework::EntityId _playerId = -1;
+        int _playerId = -1;
         std::shared_ptr<Framework::Mesh> _enemyMesh;
         std::shared_ptr<Framework::MaterialProxy> _enemyMaterial;
         float _enemySpawnFrequency = -1;

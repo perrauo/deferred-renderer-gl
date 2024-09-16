@@ -1,6 +1,7 @@
 #pragma once
 
 #include "framework/api.h"
+#include "framework/engine.h"
 #include "framework/entity.h"
 
 #include <vector>

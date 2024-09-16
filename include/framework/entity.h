@@ -5,16 +5,17 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <exception>
+#include <stdexcept>
 
 namespace Experiment::Framework
 {
-    using EntityId = int;
     class Engine;
 
     class EXPERIMENT_FRAMEWORK_API Entity {
     public:
 
-        EntityId id = -1;
+        int id = -1;
         Transform transform;
 
         bool markedForDeletion = false;
@@ -29,10 +30,12 @@ namespace Experiment::Framework
         operator bool() const {
             return id != -1;
         }
-        operator EntityId() const {
+        operator int() const {
             return id;
         }
     };
+
+    using EntityCollection = std::unordered_map<int, Entity>;
 
     class EXPERIMENT_FRAMEWORK_API Component {
     public:
@@ -49,25 +52,30 @@ namespace Experiment::Framework
     class ISystem
     {
     public:
+        virtual int numComponents() const { return 0; }
         virtual void start(Engine& engine, Entity& entity) = 0;
-        virtual void update(Engine& engine, Entity& entity, float deltaTime) = 0;
-        virtual void draw(Engine& engine, Entity& entity, float deltaTime) = 0;
-        virtual void endDraw(Engine& engine, Entity& entity, float deltaTime) = 0;
-        virtual void drawLight(Engine& engine, Entity& entity, float deltaTime) = 0;
-        virtual void endDrawLight(Engine& engine, Entity& entity, float deltaTime) = 0;
+        virtual void update(Engine& engine, EntityCollection& entities, float deltaTime) = 0;
+        virtual void draw(Engine& engine, EntityCollection& entities, float deltaTime) = 0;
+        virtual void endDraw(Engine& engine, EntityCollection& entities, float deltaTime) = 0;
+        virtual void drawLight(Engine& engine, EntityCollection& entities, float deltaTime) = 0;
+        virtual void endDrawLight(Engine& engine, EntityCollection& entities, float deltaTime) = 0;
     };
 
     template<typename T>
     class System : public ISystem
     {
         std::vector<T> _components;
-        std::unordered_map<EntityId, int> _componentIndices;
+        std::unordered_map<int, int> _componentIndices;
 
     public:
         bool isValid = true;
 
         explicit operator bool() const {
             return isValid;
+        }
+
+        int numComponents() const override {
+            return _components.size();
         }
 
         void start(Engine& engine, Entity& entity) override
@@ -79,52 +87,62 @@ namespace Experiment::Framework
             }
         }
 
-        void draw(Engine& engine, Entity& entity, float deltaTime) override
+        void draw(Engine& engine, EntityCollection& entities, float deltaTime) override
         {
-            auto it = _componentIndices.find(entity.id);
-            if (it != _componentIndices.end())
-            {
-                _components[it->second].draw(engine, entity, deltaTime);
+            for (auto& [id, entity] : entities) {
+                auto it = _componentIndices.find(entity.id);
+                if (it != _componentIndices.end())
+                {
+                    _components[it->second].draw(engine, entity, deltaTime);
+                }
             }
         }
 
-        void endDraw(Engine& engine, Entity& entity, float deltaTime) override
+        void endDraw(Engine& engine, EntityCollection& entities, float deltaTime) override
         {
-            auto it = _componentIndices.find(entity.id);
-            if (it != _componentIndices.end())
-            {
-                _components[it->second].endDraw(engine, entity, deltaTime);
+            for (auto& [id, entity] : entities) {
+                auto it = _componentIndices.find(entity.id);
+                if (it != _componentIndices.end())
+                {
+                    _components[it->second].endDraw(engine, entity, deltaTime);
+                }
             }
         }
 
-        void drawLight(Engine& engine, Entity& entity, float deltaTime) override
+        void drawLight(Engine& engine, EntityCollection& entities, float deltaTime) override
         {
-            auto it = _componentIndices.find(entity.id);
-            if (it != _componentIndices.end())
-            {
-                _components[it->second].drawLight(engine, entity, deltaTime);
+            for (auto& [id, entity] : entities) {
+                auto it = _componentIndices.find(entity.id);
+                if (it != _componentIndices.end())
+                {
+                    _components[it->second].drawLight(engine, entity, deltaTime);
+                }
             }
         }
 
-        void endDrawLight(Engine& engine, Entity& entity, float deltaTime) override
+        void endDrawLight(Engine& engine, EntityCollection& entities, float deltaTime) override
         {
-            auto it = _componentIndices.find(entity.id);
-            if (it != _componentIndices.end())
-            {
-                _components[it->second].endDrawLight(engine, entity, deltaTime);
+            for (auto& [id, entity] : entities) {
+                auto it = _componentIndices.find(entity.id);
+                if (it != _componentIndices.end())
+                {
+                    _components[it->second].endDrawLight(engine, entity, deltaTime);
+                }
             }
         }
 
-        void update(Engine& engine, Entity& entity, float deltaTime) override
+        void update(Engine& engine, EntityCollection& entities, float deltaTime) override
         {
-            auto it = _componentIndices.find(entity.id);
-            if (it != _componentIndices.end())
-            {
-                _components[it->second].update(engine, entity, deltaTime);
+            for (auto& [id, entity] : entities) {
+                auto it = _componentIndices.find(entity.id);
+                if (it != _componentIndices.end())
+                {
+                    _components[it->second].update(engine, entity, deltaTime);
+                }
             }
         }
 
-        T& getComponent(EntityId id) {
+        T& getComponent(int id) {
             auto it = _componentIndices.find(id);
             if (it != _componentIndices.end()) {
                 return _components[it->second];
@@ -132,7 +150,7 @@ namespace Experiment::Framework
             throw std::runtime_error("Component not found");
         }
 
-        T& addComponent(EntityId id) {
+        T& addComponent(int id) {
             int index = _components.size();
             _components.push_back(T());
             _components.back().componentId = index;
@@ -140,7 +158,7 @@ namespace Experiment::Framework
             return _components.back();
         }
 
-        void removeComponent(EntityId id)
+        void removeComponent(int id)
         {
             auto it = _componentIndices.find(id);
             if (it != _componentIndices.end()) {

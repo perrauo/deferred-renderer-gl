@@ -26,7 +26,7 @@ namespace Experiment::Demo
         lastCursorPos = cursorPos;
 
         // Adjust the camera's rotation
-        auto& camera = engine.getComponent<Framework::CameraComponent>(entity);
+        auto& camera = engine.getSimpleComponent<Framework::CameraComponent>(entity);
         camera.yaw -= xOffset; // Reversed the offset
         camera.pitch -= yOffset; // Reversed the offset
 

@@ -1,11 +1,12 @@
 #pragma once
 
+#include "framework/engine.h"
 #include "framework/entity.h"
 
 namespace Framework::Framework
 {
     class CameraComponent;
-    using EntityId = int;
+    ;
 }
 
 namespace Experiment::Demo

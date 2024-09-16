@@ -3,6 +3,7 @@
 #include "framework/api.h"
 #include "framework/entity.h"
 #include "framework/math.h"
+#include "framework/engine.h"
 
 #include <vector>
 #include <string>

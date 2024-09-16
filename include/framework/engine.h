@@ -32,23 +32,27 @@
 
 namespace Experiment::Framework
 {
-    using EntityId = int;
+
+    using EntityCollection = std::unordered_map<int, Entity>;
 
     class EXPERIMENT_FRAMEWORK_API Engine {
     private:
 
-        std::unordered_map<EntityId, Entity> _entities;
         std::unordered_map<std::type_index, std::unique_ptr<ISystem>> _systems;
 
         float _lastTime = 0;
 
-        EntityId _nextEntityId = 0;
+        int _nextEntityId = 0;
 
         void update(float deltaTime);
 
         int setupGl();
 
     public:
+
+        // TODO: replace with array
+        // TODO: Encapsulate
+        EntityCollection entities;
 
         GLFWwindow* window = nullptr;
         glm::ivec2 screenSize = { 0, 0 };
@@ -94,37 +98,55 @@ namespace Experiment::Framework
         glm::vec2 getCursorPos() const;
 
         template<typename T>
-        System<T>& addSystem()
+        T& addSystem()
         {
             auto typeIndex = std::type_index(typeid(T));
-            auto system = std::make_unique<System<T>>();
+            auto system = std::make_unique<T>();
             auto& ref = *system;
             _systems[typeIndex] = std::move(system);
             return ref;
         }
 
         template<typename T>
-        System<T>& getSystem() {
+        System<T>& addSimpleSystem()
+        {
+            return addSystem<System<T>>();
+        }
+
+        template<typename T>
+        T& getSystem() {
             auto typeIndex = std::type_index(typeid(T));
             auto it = _systems.find(typeIndex);
             if (it != _systems.end()) {
-                return *static_cast<System<T>*>(it->second.get());
+                return *static_cast<T*>(it->second.get());
             }
-            static System<T> sInvalidSystem;
+            static T sInvalidSystem;
             sInvalidSystem.isValid = false;
             return sInvalidSystem;
         }
 
         template<typename T>
-        T& getComponent(EntityId id)
+        System<T>& getSimpleSystem()
         {
-            return getSystem<T>().getComponent(id);
+            return getSystem<System<T>>();
+        }
+
+        template<typename T>
+        T& getSimpleComponent(int id)
+        {
+            return getSimpleSystem<T>().getComponent(id);
+        }
+
+        template<typename ComponentT, typename TSystem>
+        ComponentT& getComponent(int id)
+        {
+            return getSystem<TSystem>().getComponent(id);
         }
 
         Entity& spawnEntity();
 
-        void despawnEntity(EntityId id);
+        void despawnEntity(int id);
 
-        Entity& getEntity(EntityId id);
+        Entity& getEntity(int id);
     };
 }

@@ -47,14 +47,35 @@ namespace Experiment::Framework
         glm::vec3 color;
         float intensity;
         LightType type = LightType::Invalid;
-        glm::vec3 direction;
 
         virtual void start(Engine& engine, Entity& entity);
         virtual void update(Engine& engine, Entity& entity, float deltaTime);
-        virtual void drawLight(Engine& engine, Entity& entity, float deltaTime);
-        virtual void endDrawLight(Engine& engine, Entity& entity, float deltaTime);
-
-    private:
-        virtual void doDrawLight(Engine& engine, Entity& entity, float deltaTime);
+        virtual void drawLight(Engine& engine, Entity& entity, float deltaTime) {}
     };
+
+
+    class EXPERIMENT_FRAMEWORK_API PointLightComponent : public LightComponent {
+    public:
+        virtual void drawLight(Engine& engine, Entity& entity, float deltaTime) override;
+    };
+
+    class EXPERIMENT_FRAMEWORK_API PointLightSystem : public System<PointLightComponent>
+    {
+        using Super = System<PointLightComponent>;
+    public:
+        void drawLight(Engine& engine, EntityCollection& entities, float deltaTime) override;
+    };
+
+    class EXPERIMENT_FRAMEWORK_API DirectionalLightComponent : public LightComponent {
+    public:
+        virtual void drawLight(Engine& engine, Entity& entity, float deltaTime) override;
+    };
+
+    class EXPERIMENT_FRAMEWORK_API DirectionalLightSystem : public System<DirectionalLightComponent>
+    {
+        using Super = System<DirectionalLightComponent>;
+    public:
+        void drawLight(Engine& engine, EntityCollection& entities, float deltaTime) override;
+    };
+       
 }
