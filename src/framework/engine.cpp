@@ -198,11 +198,9 @@ namespace Experiment::Framework
         EXP_SCOPED(MaterialBinding material(gbufferMaterial.get()))
         {
             glBindFramebuffer(GL_FRAMEBUFFER, gbuffer->frameBuffer);
-
-            glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
-
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_DEPTH_TEST);
 
             // Clear all four color attachments
             GLfloat clearValues[] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -222,6 +220,10 @@ namespace Experiment::Framework
         EXP_SCOPED(MaterialBinding material(lightMaterial.get()))
         {
             glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind the default framebuffer
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_ONE, GL_ONE);
 
             // Bind GBuffer textures
             glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gPosition);
@@ -255,6 +257,8 @@ namespace Experiment::Framework
             glBindTexture(GL_TEXTURE_2D, 0);
             glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gMaterial);
             glBindTexture(GL_TEXTURE_2D, 0);
+
+            glDisable(GL_BLEND);
         }
     }
 
