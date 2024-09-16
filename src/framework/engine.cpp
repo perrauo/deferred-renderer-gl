@@ -199,6 +199,9 @@ namespace Experiment::Framework
         {
             glBindFramebuffer(GL_FRAMEBUFFER, gbuffer->frameBuffer);
 
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LESS);
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // Clear all four color attachments
@@ -214,18 +217,11 @@ namespace Experiment::Framework
             // Draw the entities
             drawEntities(deltaTime);
 
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind the default frame buffer
         }
         EXP_SCOPED(MaterialBinding material(lightMaterial.get()))
         {
             glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind the default framebuffer
-
-            glDrawBuffers(4, gbuffer->attachments);
-            GLfloat clearValues[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-            glClearBufferfv(GL_COLOR, 0, clearValues);
-            glClearBufferfv(GL_COLOR, 1, clearValues);
-            glClearBufferfv(GL_COLOR, 2, clearValues);
-            glClearBufferfv(GL_COLOR, 3, clearValues);
 
             // Bind GBuffer textures
             glActiveTexture(GL_TEXTURE0 + (int)ReservedTextureSlot::gPosition);
@@ -242,6 +238,9 @@ namespace Experiment::Framework
             lightMaterial->setUniform(Uniforms::gNormal, ReservedTextureSlot::gNormal);
             lightMaterial->setUniform(Uniforms::gAlbedo, ReservedTextureSlot::gAlbedo);
             lightMaterial->setUniform(Uniforms::gMaterial, ReservedTextureSlot::gMaterial);
+
+            // Clear the default framebuffer
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             drawLights(deltaTime);
 

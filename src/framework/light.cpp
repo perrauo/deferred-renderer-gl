@@ -29,7 +29,6 @@ namespace Experiment::Framework
 
     void PointLightComponent::drawLight(Engine& engine, Entity& entity, float deltaTime)
     {
-        auto& system = engine.getSystem<PointLightSystem>();        
         std::string lightPosUniform = "pointLights[" + std::to_string(componentId) + "].position";
         std::string lightColorUniform = "pointLights[" + std::to_string(componentId) + "].color";
         std::string lightIntensityUniform = "pointLights[" + std::to_string(componentId) + "].intensity";
@@ -37,13 +36,11 @@ namespace Experiment::Framework
         // Assuming you have a method to set uniforms in your shader
         engine.lightMaterial->setUniform(lightPosUniform, entity.transform.position);
         engine.lightMaterial->setUniform(lightColorUniform, color);
-        engine.lightMaterial->setUniform(lightIntensityUniform, intensity);        
-
+        engine.lightMaterial->setUniform(lightIntensityUniform, intensity);
     }
 
     void DirectionalLightComponent::drawLight(Engine& engine, Entity& entity, float deltaTime)
     {
-        auto& system = engine.getSystem<DirectionalLightSystem>();
         std::string lightDirUniform = "directionalLights[" + std::to_string(componentId) + "].direction";
         std::string lightColorUniform = "directionalLights[" + std::to_string(componentId) + "].color";
         std::string lightIntensityUniform = "directionalLights[" + std::to_string(componentId) + "].intensity";

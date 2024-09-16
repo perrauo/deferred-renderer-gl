@@ -40,7 +40,7 @@ namespace Experiment::Framework
 
     enum class ReservedTextureSlot : int
     {
-        ScreenTexture, // Corresponds to GL_TEXTURE0..etc
+        //ScreenTexture, // Corresponds to GL_TEXTURE0..etc
         gPosition,
         gNormal,
         gAlbedo,
