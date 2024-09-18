@@ -56,7 +56,7 @@ namespace Experiment::Framework
         MaterialType materialType = (MaterialType)-1;
         std::string baseTexturePath;
         std::shared_ptr<Texture> defaultTexture;
-        std::unordered_map<unsigned int, ModelLoadMesh> meshes;
+        std::vector<ModelLoadMesh> meshes;
         std::unordered_map<unsigned int, ModelLoadMaterial> materials;
         std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
     };

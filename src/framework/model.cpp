@@ -60,7 +60,7 @@ namespace Experiment::Framework
     void loadModelProcessMesh(ModelLoadContext& loadContext, const aiScene* scene, const aiNode* node, unsigned int meshId)
     {
         auto mesh = scene->mMeshes[node->mMeshes[meshId]];
-        auto& result = loadContext.meshes[meshId];
+        auto& result = loadContext.meshes.emplace_back();
         result.mesh = std::make_unique<Mesh>();
         result.materialIdx = mesh->mMaterialIndex;
         result.transform = convertTransform(node->mTransformation);
@@ -125,11 +125,11 @@ namespace Experiment::Framework
         aiString aiTexturePath;
         std::shared_ptr<Texture> texture = nullptr;
 
-        if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath) == AI_SUCCESS)
-        {
-            texture = doLoadTexture(loadContext, aiTexturePath);
-            loadMaterial.material->setUniform(Materials::Uniforms::albedoMap, texture);
-        }
+        texture = aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath) == AI_SUCCESS ?
+            doLoadTexture(loadContext, aiTexturePath)
+            : loadContext.defaultTexture;
+        loadMaterial.material->setUniform(Materials::Uniforms::albedoMap, texture);
+
         if (aiMaterial->GetTexture(aiTextureType_SHININESS, 0, &aiTexturePath) == AI_SUCCESS)
         {
             texture = doLoadTexture(loadContext, aiTexturePath);
@@ -193,7 +193,7 @@ namespace Experiment::Framework
         loadModelProcessNode(loadContext, scene, scene->mRootNode);
 
         // Reuse existing shaders and textures
-        for (auto& [_, mesh] : loadContext.meshes)
+        for (auto& mesh : loadContext.meshes)
         {
             int materialIdx = mesh.materialIdx;
             auto it = loadContext.materials.find(materialIdx);

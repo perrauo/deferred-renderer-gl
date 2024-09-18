@@ -64,7 +64,7 @@ namespace Experiment::Demo
                 loadContext.materialType = MaterialType::Lambert;
                 loadContext.defaultTexture = _pinkTexture;
                 loadModel(entry.path().string(), loadContext);
-                for (auto& [_, loadedMesh] : loadContext.meshes)
+                for (auto& loadedMesh : loadContext.meshes)
                 {
                     auto& entity = engine.spawnEntity();
                     auto& meshComp = meshSystem.addComponent(entity);
@@ -83,7 +83,7 @@ namespace Experiment::Demo
                 loadContext.materialType = MaterialType::Lambert;
                 loadContext.defaultTexture = _pinkTexture;
                 loadModel(entry.path().string(), loadContext);
-                for (auto& [_, loadedMesh] : loadContext.meshes)
+                for (auto& loadedMesh : loadContext.meshes)
                 {
                     _enemyMesh = loadedMesh.mesh;
                     _enemyMaterial = loadedMesh.material;
