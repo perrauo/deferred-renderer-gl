@@ -100,6 +100,22 @@ namespace Experiment::Framework
 
     }
 
+    std::shared_ptr<Texture> doLoadTexture(ModelLoadContext& loadContext, const aiString& aiTexturePath)
+    {
+        std::string texturePath = RES(loadContext.baseTexturePath + "/" + aiTexturePath.C_Str());
+        auto it = loadContext.textures.find(texturePath);
+        if (it == loadContext.textures.end())
+        {
+            auto texture = std::make_shared<Texture>(texturePath);
+            loadContext.textures[texturePath] = texture;
+            return texture;
+        }
+        else
+        {
+            return it->second;
+        }
+    }
+
     void loadModelProcessMaterial(ModelLoadContext& loadContext, const aiScene* scene, const aiNode* node, unsigned int materialId)
     {       
         auto& loadMaterial = loadContext.materials[materialId];
@@ -108,33 +124,25 @@ namespace Experiment::Framework
         aiMaterial* aiMaterial = scene->mMaterials[materialId];
         aiString aiTexturePath;
         std::shared_ptr<Texture> texture = nullptr;
+
         if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath) == AI_SUCCESS)
         {
-            std::string texturePath = RES(loadContext.baseTexturePath + "/" + aiTexturePath.C_Str());
-            auto it = loadContext.textures.find(texturePath);
-            if (it == loadContext.textures.end())
-            {
-                texture = std::make_shared<Texture>(texturePath);
-                loadContext.textures[texturePath] = texture;
-            }
-            else
-            {
-                texture = it->second;
-            }
+            texture = doLoadTexture(loadContext, aiTexturePath);
+            loadMaterial.material->setUniform(Materials::Uniforms::albedoMap, texture);
         }
-        else
+        if (aiMaterial->GetTexture(aiTextureType_SHININESS, 0, &aiTexturePath) == AI_SUCCESS)
         {
-            // Use default pink texture
-            texture = loadContext.defaultTexture;
+            texture = doLoadTexture(loadContext, aiTexturePath);
+            loadMaterial.material->setUniform(Materials::Uniforms::specularMap, texture);
+        }
+        if (aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &aiTexturePath) == AI_SUCCESS)
+        {
+            texture = doLoadTexture(loadContext, aiTexturePath);
+            loadMaterial.material->setUniform(Materials::Uniforms::normalMap, texture);
         }
 
         if (loadMaterial.material->type == MaterialType::Lambert)
         {
-            if (texture)
-            {
-                loadMaterial.material->setUniform(Materials::Uniforms::albedoMap, texture);
-            }
-
             auto& engine = loadContext.engine;
             auto lambert = engine.config.at("Lambert").as_object();
 
@@ -178,7 +186,7 @@ namespace Experiment::Framework
         }
 
         for (int i = 0; i < scene->mNumMaterials; i++)
-        {            
+        {
             loadModelProcessMaterial(loadContext, scene, scene->mRootNode, i);
         }
 

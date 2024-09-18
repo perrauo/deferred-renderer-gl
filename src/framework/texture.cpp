@@ -93,7 +93,7 @@ namespace Experiment::Framework
         using namespace DeferredShading;
 
         // GL_TEXTURE0 reserved by the deferred renderer. So let's use the texture slots afterward
-        glActiveTexture(GL_TEXTURE0 + numTexturesReserved + unit);
+        glActiveTexture(GL_TEXTURE0 + unit);
         glBindTexture(_textureTarget, _textureID);
     }
 }

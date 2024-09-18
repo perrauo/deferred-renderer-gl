@@ -33,6 +33,8 @@ namespace Experiment::Framework
             constexpr char screenSize[] = "screenSize";
 
             constexpr char albedoMap[] = "albedoMap";
+            constexpr char specularMap[] = "specularMap";
+            constexpr char normalMap[] = "normalMap";
         }
         namespace Attributes
         {

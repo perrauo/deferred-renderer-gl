@@ -21,8 +21,6 @@ namespace Experiment::Framework
 
     namespace DeferredShading
     {
-        constexpr int numTexturesReserved = 5;
-
         namespace FinalPass
         {
             constexpr char name[] = NAMEOF(FinalPass);
@@ -30,7 +28,6 @@ namespace Experiment::Framework
 
         namespace Uniforms
         {
-            constexpr char screenTexture[] = "screenTexture";
             constexpr char gPosition[] = "gPosition";
             constexpr char gNormal[] = "gNormal";
             constexpr char gAlbedo[] = "gAlbedo";
@@ -44,7 +41,8 @@ namespace Experiment::Framework
         gPosition,
         gNormal,
         gAlbedo,
-        gMaterial
+        gMaterial,
+        Count
     };
 
     namespace GBuffer

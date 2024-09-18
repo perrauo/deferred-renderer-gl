@@ -277,7 +277,7 @@ namespace Experiment::Framework
 
         // Set the texture uniforms
         using namespace DeferredShading;
-        int textureUnit = numTexturesReserved;
+        int textureUnit = (int)ReservedTextureSlot::Count;
         for (const auto& textureUniform : _textureUniforms) {
             if (auto texture = textureUniform.second) {
                 texture->bind(textureUnit);

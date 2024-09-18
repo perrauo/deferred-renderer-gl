@@ -105,27 +105,27 @@ namespace Experiment::Demo
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - lastSpawnTime);
 
 
-        if (duration.count() >= _enemySpawnFrequency) {
-            auto& player = engine.getEntity(_playerId);
-            auto& entity = engine.spawnEntity();
+        //if (duration.count() >= _enemySpawnFrequency) {
+        //    auto& player = engine.getEntity(_playerId);
+        //    auto& entity = engine.spawnEntity();
 
-            // Calculate a random position around the player
-            float radius = glm::linearRand(_enemySpawnDistance.x, _enemySpawnDistance.y); // adjust this value to change the spawn distance
-            float angle = glm::radians(glm::linearRand(0.0f, 360.0f));
-            glm::vec3 spawnPosition = player.transform.position + glm::vec3(radius * cos(angle), 0, radius * sin(angle));
+        //    // Calculate a random position around the player
+        //    float radius = glm::linearRand(_enemySpawnDistance.x, _enemySpawnDistance.y); // adjust this value to change the spawn distance
+        //    float angle = glm::radians(glm::linearRand(0.0f, 360.0f));
+        //    glm::vec3 spawnPosition = player.transform.position + glm::vec3(radius * cos(angle), 0, radius * sin(angle));
 
-            entity.transform.position = spawnPosition;
+        //    entity.transform.position = spawnPosition;
 
-            // Make the enemy face the player
-            glm::vec3 direction = glm::normalize(player.transform.position - spawnPosition);
-            entity.transform.rotation = glm::quatLookAt(direction, glm::vec3(0, 1, 0));
+        //    // Make the enemy face the player
+        //    glm::vec3 direction = glm::normalize(player.transform.position - spawnPosition);
+        //    entity.transform.rotation = glm::quatLookAt(direction, glm::vec3(0, 1, 0));
 
-            auto& enemyComp = enemySystem.addComponent(entity);
-            auto& meshComp = meshSystem.addComponent(entity);
-            meshComp.mesh = _enemyMesh;
-            meshComp.material = _enemyMaterial;
-            lastSpawnTime = now;
-        }
+        //    auto& enemyComp = enemySystem.addComponent(entity);
+        //    auto& meshComp = meshSystem.addComponent(entity);
+        //    meshComp.mesh = _enemyMesh;
+        //    meshComp.material = _enemyMaterial;
+        //    lastSpawnTime = now;
+        //}
     }
 
 
