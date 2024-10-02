@@ -1,8 +1,10 @@
-# Ghost Game + Deferred Renderer (GL)
+# Game Engine + Deferred Renderer (GL)
+![image](https://github.com/user-attachments/assets/aeedee75-629f-4342-ad8e-7197e225657d)
+
 # **WORK IN PROGRESS**
 ## About
 Project showcasing a game loop deferred and rendering technique in OpenGL
-* Deferred rendering is not currently working
+* Deferred rendering
     * [engine::draw](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/src/framework/engine.cpp#L191)
     * [lambertGeom.vert](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/lambertGeom.vert)
     * [lambertGeom.frag](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/lambertGeom.frag)
