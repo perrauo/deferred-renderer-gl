@@ -92,6 +92,7 @@ namespace Experiment::Framework
                     std::cerr << "Invalid texture data size." << std::endl;
                     return;
                 }
+                // https://github.com/no-materials/DeepSDF/blob/1fbd3f46d87105234963857c657fde3966e3b87d/src/common/texture.cpp#L197
                 for (std::size_t level = 0; level < texture.levels(); ++level)
                 {
                     glCompressedTexImage2D(_textureTarget, level, format, texture.extent(level).x, texture.extent(level).y, 0, texture.size(level), texture.data(0, 0, level));
