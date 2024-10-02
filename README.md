@@ -6,12 +6,10 @@
 Project showcasing a game loop deferred and rendering technique in OpenGL
 * Deferred rendering
     * [engine::draw](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/src/framework/engine.cpp#L191)
-    * [lambertGeom.vert](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/lambertGeom.vert)
-    * [lambertGeom.frag](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/lambertGeom.frag)
-    * [lambertLight.vert](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/lambertLight.vert)
-    * [lambertLight.frag](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/lambertLight.frag)
-    * [pointLight.vert](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/pointLight.vert)
-    * [pointLight.frag](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/pointLight.frag)
+    * [gbuffer.vert](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/gbuffer.vert)
+    * [gbuffer.frag](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/gbuffer.frag)
+    * [light.vert](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/light.vert)
+    * [light.frag](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/resources/framework/shaders/light.frag)
 * Mesh
     * [MeshComponent::draw](https://github.com/perrauo/ghostgame-deferredrend-gl/blob/main/src/framework/mesh.cpp#L124)
 * Point Light
