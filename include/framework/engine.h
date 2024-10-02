@@ -96,6 +96,8 @@ namespace Experiment::Framework
         void stop();
 
         glm::vec2 getCursorPos() const;
+        bool isKeyPressed(int key);
+
 
         template<typename T>
         T& addSystem()

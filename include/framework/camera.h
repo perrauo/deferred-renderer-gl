@@ -31,5 +31,8 @@ namespace Experiment::Framework
         void start(Framework::Engine& engine, Framework::Entity& entity);
         void update(Framework::Engine& engine, Framework::Entity& entity, float deltaTime) override;
         void draw(Framework::Engine& engine, Framework::Entity& entity, float deltaTime) override;
+
+        glm::vec3 getForward() const;
+        glm::vec3 getUp() const;
     };
 }

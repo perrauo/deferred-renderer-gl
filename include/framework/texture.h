@@ -18,7 +18,7 @@ namespace Experiment::Framework
         std::string _path;
         GLuint _textureID;
         GLenum _textureTarget;
-        static constexpr const char* _supportedExtensions[] = { ".png", ".jpg", ".jpeg", ".bmp", ".tga", ".dds" };
+        static constexpr const char* _supportedExtensions[] = { ".png", ".jpg", ".jpeg", ".bmp", ".tga", ".dds", ".ktx" };
 
     public:
         Texture(const std::string& path, GLenum textureTarget = GL_TEXTURE_2D);

@@ -19,6 +19,7 @@ namespace Experiment::Demo
     {
     public:
         
+        float movementSpeed = 10.0f;
         glm::vec2 lastCursorPos;
 
         void start(Framework::Engine& engine, Framework::Entity& entity) override;

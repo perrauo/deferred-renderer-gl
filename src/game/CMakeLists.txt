@@ -18,6 +18,7 @@ exclude_hidden_dirs("${ENEMY_SHADER_FILES}" ENEMY_SHADER_FILES)
 file(GLOB_RECURSE ENV_FILES
     ${CMAKE_SOURCE_DIR}/resources/game/environment/*.dae
     ${CMAKE_SOURCE_DIR}/resources/game/environment/*.dds
+    ${CMAKE_SOURCE_DIR}/resources/game/environment/*.ktx
 )
 
 file(GLOB_RECURSE CONFIG_FILES

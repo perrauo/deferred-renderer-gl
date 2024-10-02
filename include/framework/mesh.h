@@ -43,6 +43,8 @@ namespace Experiment::Framework
         bool _isLoaded = false;
     public:
 
+        std::string name;
+
         // vec3
         std::vector<GLfloat> vertices;
         std::vector<GLfloat> normals;

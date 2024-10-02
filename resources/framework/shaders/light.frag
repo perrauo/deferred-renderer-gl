@@ -1,5 +1,8 @@
 #version 450
 
+#define LAMBERT 0
+#define PHONG 1
+
 layout(location = 0) out vec4 outColor;
 
 layout(binding = 0) uniform sampler2D gPosition;
@@ -51,9 +54,9 @@ void main() {
     // Point lights
     for (int i = 0; i < numPointLights; ++i) {
         vec3 lightDir = normalize(pointLights[i].position - fragPos);
-        if (material == 0) {
+        if (material == PHONG) {
             result += phongLighting(normal, fragPos, lightDir, pointLights[i].color * pointLights[i].intensity);
-        } else {
+        } else if(material == LAMBERT){
             result += lambertLighting(normal, lightDir, pointLights[i].color * pointLights[i].intensity);
         }
     }
@@ -61,9 +64,9 @@ void main() {
     // Directional lights
     for (int i = 0; i < numDirectionalLights; ++i) {
         vec3 dirLightDir = normalize(-directionalLights[i].direction);
-        if (material == 0) {
+        if (material == PHONG) {
             result += phongLighting(normal, fragPos, dirLightDir, directionalLights[i].color * directionalLights[i].intensity);
-        } else {
+       } else if(material == LAMBERT){
             result += lambertLighting(normal, dirLightDir, directionalLights[i].color * directionalLights[i].intensity);
         }
     }

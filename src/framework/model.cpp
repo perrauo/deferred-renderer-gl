@@ -62,6 +62,7 @@ namespace Experiment::Framework
         auto mesh = scene->mMeshes[node->mMeshes[meshId]];
         auto& result = loadContext.meshes.emplace_back();
         result.mesh = std::make_unique<Mesh>();
+        result.mesh->name = mesh->mName.C_Str();
         result.materialIdx = mesh->mMaterialIndex;
         result.transform = convertTransform(node->mTransformation);
 
@@ -177,8 +178,13 @@ namespace Experiment::Framework
 
     void loadModel(const std::string& path, ModelLoadContext& loadContext)
     {
+        if (path.find("skysphere") != std::string::npos)
+            return;
+
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+        // aiProcess_FlipUVs
+        const aiScene* scene = importer.ReadFile(path, aiProcess_FixInfacingNormals | aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
+        //std::cout << "MAYBE ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
             std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;

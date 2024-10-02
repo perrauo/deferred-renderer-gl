@@ -160,6 +160,10 @@ namespace Experiment::Framework
         glfwGetCursorPos(window, &x, &y);
         return glm::vec2(x, y);
     }
+    bool Engine::isKeyPressed(int key) {
+        GLFWwindow* window = glfwGetCurrentContext();
+        return glfwGetKey(window, key) == GLFW_PRESS;
+    }
 
     void Engine::drawEntities(float deltaTime)
     {

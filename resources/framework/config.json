@@ -24,7 +24,7 @@
             "g": 1.0,
             "b": 1.0
         },
-        "lightIntensity": 1.0,
+        "lightIntensity": 255.0,
         "lightDir": {
             "x": 0.0,
             "y": -1.0,
